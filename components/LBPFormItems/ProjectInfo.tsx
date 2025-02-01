@@ -8,7 +8,7 @@ import {
   SelectItem,
   Textarea,
   useDisclosure,
-  Button
+  Button,
 } from "@nextui-org/react";
 import React, { useState } from "react";
 import SelectField from "./Components/SelectField";
@@ -71,31 +71,43 @@ const GeoBlockedCountriesModal = (props: GeoBlockedCountriesModalProps) => {
         onOpenChange={onOpenChange}
         onClose={handleClose}
         hideCloseButton
-        size='md'
+        size="md"
       >
-        <ModalContent className='!bg-transparent !border-none'>
-          <div className='absolute top-0 left-0 right-0 -translate-y-3/4 flex justify-center'>
+        <ModalContent className="!bg-transparent !border-none">
+          <div className="absolute top-0 left-0 right-0 -translate-y-3/4 flex justify-center">
             <img src="/images/launch-project/Group.png" alt="handing-rope" />
           </div>
 
-          <div className="hidden lg:flex absolute left-0 -translate-x-[60%] -translate-y-[10%]" >
-            <img src="/images/launch-project/launch-project-sticky3.png" alt="sticky3" />
+          <div className="hidden lg:flex absolute left-0 -translate-x-[60%] -translate-y-[10%]">
+            <img
+              src="/images/launch-project/launch-project-sticky3.png"
+              alt="sticky3"
+            />
           </div>
 
-          <div className="hidden lg:flex absolute bottom-6 right-0 translate-x-[70%]" >
-            <img src="/images/launch-project/launch-project-sticky4.png" alt="sticky4" />
+          <div className="hidden lg:flex absolute bottom-6 right-0 translate-x-[70%]">
+            <img
+              src="/images/launch-project/launch-project-sticky4.png"
+              alt="sticky4"
+            />
           </div>
           <ModalBody
-            className="relative z-50 w-ful rounded-3xl px-0 pb-16 text-[#202020] block" style={{
-              background: "url('/images/launch-project/subtract-sticky.png'), url('/images/launch-project/subtract-bg.png')",
+            className="relative z-50 w-ful rounded-3xl px-0 pb-16 text-[#202020] block"
+            style={{
+              background:
+                "url('/images/launch-project/subtract-sticky.png'), url('/images/launch-project/subtract-bg.png')",
               backgroundSize: "contain, cover",
-              backgroundRepeat: 'no-repeat, no-repeat',
-            }}>
-            <div className='flex items-center justify-between pt-6 pb-4 border-b px-6 border-[#202020]'>
-              <h3 className="text-lg ">
-                Select a Country
-              </h3>
-              <Button isIconOnly className='!size-8 min-w-8 rounded-md bottom-1' variant="bordered" onClick={handleClose}>
+              backgroundRepeat: "no-repeat, no-repeat",
+            }}
+          >
+            <div className="flex items-center justify-between pt-6 pb-4 border-b px-6 border-[#202020]">
+              <h3 className="text-lg ">Select a Country</h3>
+              <Button
+                isIconOnly
+                className="!size-8 min-w-8 rounded-md bottom-1"
+                variant="bordered"
+                onClick={handleClose}
+              >
                 <CloseIcon className="text-black" />
               </Button>
             </div>
@@ -108,7 +120,7 @@ const GeoBlockedCountriesModal = (props: GeoBlockedCountriesModalProps) => {
                 startContent={<SearchIcon className="size-5 !text-[#202020]" />}
                 classNames={{
                   input: "text-sm mt-1 leading-[16px]",
-                  inputWrapper: 'h-[40px]',
+                  inputWrapper: "h-[40px]",
                 }}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
@@ -129,11 +141,9 @@ const GeoBlockedCountriesModal = (props: GeoBlockedCountriesModalProps) => {
                       setSelectedCountries(keys as Set<string>)
                     }
                     className="bg-transparent rounded-md px-0"
-                    classNames={
-                      {
-                        list: 'gap-3'
-                      }
-                    }
+                    classNames={{
+                      list: "gap-3",
+                    }}
                   >
                     {filteredList.map((token) => (
                       <ListboxItem
@@ -141,17 +151,18 @@ const GeoBlockedCountriesModal = (props: GeoBlockedCountriesModalProps) => {
                         className="hover:bg-white/60"
                         classNames={{
                           base: "select-item bg-white py-3 item-center data-[hover=true]:bg-white/80 data-[selectable=true]:focus:bg-white/80 data-[selectable=true]:text-[#202020] data-[selectable=true]:focus:text-[#202020] data-[selected=true]:border-b data-[selected=true]:border-[#2F302B] px-3 rounded-lg border border-black shadow-[1px_2px_0px_0px_#9B7D2F]",
-                          title: 'text-base leading-[16px]',
-                          selectedIcon: 'block p-1 w-6 h-6 border-[0.5px] border-[#202020] shadow-[1.125px_1.125px_0px_0px_#000] rounded hidden'
+                          title: "text-base leading-[16px]",
+                          selectedIcon:
+                            "block p-1 w-6 h-6 border-[0.5px] border-[#202020] shadow-[1.125px_1.125px_0px_0px_#000] rounded hidden",
                         }}
                         textValue={token.name}
                       >
                         <div className="flex items-center gap-2">
-                          <div className='w-[40px] h-6 rounded border border-black shadow-button overflow-hidden'>
+                          <div className="w-[40px] h-6 rounded border border-black shadow-button overflow-hidden">
                             <img
                               src={token.image}
                               alt={token.name}
-                              className='h-full w-full object-cover scale-150'
+                              className="h-full w-full object-cover scale-150"
                             />
                           </div>
                           <p className="text-sm mt-1">{token.name}</p>
@@ -201,11 +212,15 @@ const ProjectInfo = () => {
   return (
     <FormContainer className="text-[#202020]">
       <div>
-        <h3 className="text-[22px] max-md:text-center md:text-2xl md:leading-[28.79px]">Project Infomation</h3>
-        <p className="text-sm max-md:text-center leading-4 mt-3">Please Fill out Sale details.</p>
+        <h3 className="text-[22px] max-md:text-center md:text-2xl md:leading-[28.79px]">
+          Project Infomation
+        </h3>
+        <p className="text-sm max-md:text-center leading-4 mt-3">
+          Please Fill out Sale details.
+        </p>
       </div>
       <div className="flex flex-col gap-5 mt-4 md:mt-8">
-        <div className="pb-5 border-b border-black">
+        {/* <div className="pb-5 border-b border-black">
           <h3 className="text-lg md:text-xl mb-2">Category</h3>
           <Controller
             name="category"
@@ -235,12 +250,11 @@ const ProjectInfo = () => {
               </SelectField>
             )}
           />
-        </div>
+        </div> */}
         <div>
           <h4 className="text-lg md:text-xl">LBP Description</h4>
-          <div className="text-sm leading-4 mt-[6px]">Markdown support.</div>
           <div className="flex flex-col gap-2 mt-2 border-b border-black pb-5">
-            <div className="flex bg-[#202020] w-full rounded-2xl p-2 gap-4">
+            {/* <div className="flex bg-[#202020] w-full rounded-2xl p-2 gap-4">
               <div
                 onClick={() => handleTabChange("edit")}
                 className={clsx(
@@ -265,7 +279,7 @@ const ProjectInfo = () => {
               >
                 <span>Preview</span>
               </div>
-            </div>
+            </div> */}
 
             <Controller
               name="lbpDescription"
@@ -308,11 +322,11 @@ const ProjectInfo = () => {
                     placeholder="Paste URL here"
                     isInvalid={!!errors?.X}
                     errorMessage={errors?.X?.message?.toString()}
-                  // endContent={
-                  //   <Button isIconOnly aria-label="copy" className='!size-[32px] !min-w-[32px] bg-white border border-black shadow-button rounded' >
-                  //     <CopyIcon className='text-black size-4' />
-                  //   </Button>
-                  // }
+                    // endContent={
+                    //   <Button isIconOnly aria-label="copy" className='!size-[32px] !min-w-[32px] bg-white border border-black shadow-button rounded' >
+                    //     <CopyIcon className='text-black size-4' />
+                    //   </Button>
+                    // }
                   />
                 )}
               />
@@ -355,7 +369,7 @@ const ProjectInfo = () => {
           </div>
         </div>
 
-        <div className="pb-5 border-b border-black">
+        {/* <div className="pb-5 border-b border-black">
           <div className="flex items-center gap-[17px]">
             <h4 className="text-base">Geo-blocked Countries</h4>
             <GeoBlockedCountriesModal />
@@ -386,8 +400,9 @@ const ProjectInfo = () => {
               )}
             </div>
           </div>
-        </div>
-        <div>
+        </div> */}
+
+        {/* <div>
           <div className="flex items-center max-md:justify-between md:gap-[18px]">
             <h4 className="text-sm md:text-base">Previous Investment Round</h4>
             <button
@@ -534,7 +549,7 @@ const ProjectInfo = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </FormContainer>
   );

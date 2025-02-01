@@ -79,13 +79,17 @@ const ApprovalsCard = ({
         </p>
       </div>
 
-      <div className='absolute top-0 left-0 right-0 flex justify-center'>
-        <img src="/images/launch-project/token-bg.svg" alt="token-bg" className="" />
-        <div className='w-[40px] h-[40px] border border-black rounded-full bg-[#C4C4C4] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'></div>
+      <div className="absolute top-0 left-0 right-0 flex justify-center">
+        <img
+          src="/images/launch-project/token-bg.svg"
+          alt="token-bg"
+          className=""
+        />
+        <div className="w-[40px] h-[40px] border border-black rounded-full bg-[#C4C4C4] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
         {/* {title} */}
       </div>
-      <div className='w-full h-full flex flex-col justify-end relative z-50'>
-        <p className='text-sm text-[#33250F] mb-2 text-center'>{title}</p>
+      <div className="w-full h-full flex flex-col justify-end relative z-50">
+        <p className="text-sm text-[#33250F] mb-2 text-center">{title}</p>
         <div className="w-full h-[6px] bg-[#211708] rounded-[32px] mb-4" />
         {isApproved && title == "Approve" ? (
           <Button
@@ -134,7 +138,6 @@ const Confirm = (props: Props) => {
     projectToken,
     assetTokenQuantity,
   } = getValues();
-
 
   const { mutateAsync: createPoolAsync } = useMutation({
     mutationFn: async (data: TCreatePool) => FjordHoneySdk.createPool(data),
@@ -275,7 +278,7 @@ const Confirm = (props: Props) => {
       formatedAssetToken?.allowance || BigInt(0),
       formatedAssetToken?.decimals || 18
     ) -
-    assetTokenQuantity >=
+      assetTokenQuantity >=
     0;
 
   const isProjectTokenApproved =
@@ -283,7 +286,7 @@ const Confirm = (props: Props) => {
       formatedProjectToken?.allowance || BigInt(0),
       formatedProjectToken?.decimals || 18
     ) -
-    projectTokenQuantity >=
+      projectTokenQuantity >=
     0;
 
   const handleApprovalTokens = async () => {
@@ -354,6 +357,47 @@ const Confirm = (props: Props) => {
 
         const salt = projectToken + assetTokenAddress;
 
+        console.log({
+          abi: LiquidityBootstrapPoolFactoryABI,
+          address: LiquidityBootstrapPoolFactoryAddress,
+          functionName: "createLiquidityBootstrapPool",
+          args: [
+            {
+              asset: assetTokenAddress,
+              share: projectToken,
+              creator: account.address,
+              whitelistMerkleRoot:
+                "0x0000000000000000000000000000000000000000000000000000000000000000",
+              sellingAllowed: sellingAllowed,
+              saleStart: dayjs(startTime).unix(),
+              saleEnd: dayjs(endTime).unix(),
+              minAssetsIn: BigInt(0),
+              minPercAssetsSeeding: 0,
+              minSharesSeeding: BigInt(0),
+              redemptionDelay:
+                tokenClaimDelayHours * 60 * 60 + tokenClaimDelayMinutes * 60,
+              weightStart: parseEther(`${startWeight / 100}`),
+              weightEnd: parseEther(`${endWeight / 100}`),
+              maxSharePrice: maxUint256,
+              maxTotalAssetsIn: BigInt(0),
+              maxSharesOut: maxUint256,
+              maxTotalAssetsInDeviation: 10,
+              vestCliff: 0,
+              vestEnd: 0,
+              virtualAssets: BigInt(0),
+            },
+            parseUnits(
+              `${projectTokenQuantity}`,
+              formatedProjectToken?.decimals ?? 18
+            ),
+            parseUnits(
+              `${assetTokenQuantity}`,
+              formatedAssetToken?.decimals ?? 18
+            ),
+            keccak256(salt as `0x${string}`),
+          ],
+        });
+
         const txHash = await writeContractAsync({
           abi: LiquidityBootstrapPoolFactoryABI,
           address: LiquidityBootstrapPoolFactoryAddress,
@@ -410,7 +454,7 @@ const Confirm = (props: Props) => {
             if (decode.eventName == "PoolCreated") {
               poolAddress = decode.args.pool;
             }
-          } catch (error) { }
+          } catch (error) {}
         });
         if (poolAddress) {
           await createPoolAsync({
@@ -459,7 +503,8 @@ const Confirm = (props: Props) => {
             redemptionDelay:
               tokenClaimDelayHours * 60 * 60 + tokenClaimDelayMinutes * 60,
           });
-          router.push(`/dreampad/lbp-detail/${poolAddress}`);
+
+          router.push(`/lbp-detail/${poolAddress}`);
         }
       } catch (error) {
         console.log(error);
@@ -477,18 +522,20 @@ const Confirm = (props: Props) => {
       formatedAssetToken?.balanceOf || BigInt(0),
       formatedAssetToken?.decimals || 18
     ) -
-    assetTokenQuantity >=
-    0 &&
+      assetTokenQuantity >=
+      0 &&
     +formatUnits(
       formatedProjectToken?.balanceOf || BigInt(0),
       formatedProjectToken?.decimals || 18
     ) -
-    projectTokenQuantity >=
-    0;
+      projectTokenQuantity >=
+      0;
 
   return (
     <FormContainer>
-      <h3 className="text-[23px] md:text-2xl md:leading-[26px] font-semibold">Quick Summary</h3>
+      <h3 className="text-[23px] md:text-2xl md:leading-[26px] font-semibold">
+        Quick Summary
+      </h3>
       <div className="flex flex-col gap-9">
         <div className="mt-3 md:mt-6 flex flex-wrap justify-between px-3 py-5 md:p-6 border border-black rounded-2xl shadow-field gap-y-4">
           {SummaryItemData.map((d) => (

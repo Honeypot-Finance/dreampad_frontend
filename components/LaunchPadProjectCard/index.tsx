@@ -243,13 +243,13 @@ const LaunchPadProjectCard = observer(
           </div>
           <div className="p-[10px]">
             {status === "live" ? (
-              <Link href={`/dreampad/lbp-detail/${pairAddress}`}>
+              <Link href={`/lbp-detail/${pairAddress}`}>
                 <Button className="w-full outline-2">
                   <span className="font-bold text-[12px]">Buy Token</span>
                 </Button>
               </Link>
             ) : (
-              <Link href={`/dreampad/lbp-detail/${pairAddress}`}>
+              <Link href={`/lbp-detail/${pairAddress}`}>
                 <Button className="w-full outline-2">
                   <span className="font-bold text-[12px]">View Token</span>
                 </Button>
@@ -300,7 +300,7 @@ const LaunchPadProjectCard = observer(
 
               <div className="flex flex-col">
                 <div className="text-base leading-[20px] font-bold text-white">
-                  <Link href={`/dreampad/lbp-detail/${pairAddress}`}>
+                  <Link href={`/lbp-detail/${pairAddress}`}>
                     <Button className="w-full outline-2">
                       <span className="font-bold text-[12px]">Buy Token</span>
                     </Button>

@@ -60,7 +60,7 @@ const MemeLaunchPage: NextLayoutPage = observer(() => {
           <div className="flex gap-5">
             <Button className="px-[38px] py-[12.5px] rounded-full outline-1 !bg-[#FFCD4D] border-2 border-[#E18A2066]">
               <Link
-                href="/dreampad/launch-project"
+                href="/launch-project"
                 className="text-black font-bold text-sm leading-4"
               >
                 Launch Token

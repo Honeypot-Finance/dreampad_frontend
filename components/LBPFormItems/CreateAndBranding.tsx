@@ -33,16 +33,26 @@ const WALLET_NETWORK_OPTIONS = [
   },
 ];
 
-const RenderValueSelectField = ({ icon, label }: { icon?: string, label?: string }) => {
-  return <div className="flex items-center gap-3">
-    {
-      icon && label ? <>
-        <img src={icon} alt="icon" className="w-6 aspect-square md:w-8" />
+const RenderValueSelectField = ({
+  icon,
+  label,
+}: {
+  icon?: string;
+  label?: string;
+}) => {
+  return (
+    <div className="flex items-center gap-3">
+      {icon && label ? (
+        <>
+          <img src={icon} alt="icon" className="w-6 aspect-square md:w-8" />
+          <span className="pt-0.5 text-lg md:text-xl">{label}</span>
+        </>
+      ) : (
         <span className="pt-0.5 text-lg md:text-xl">{label}</span>
-      </> : <span className="pt-0.5 text-lg md:text-xl">{label}</span>
-    }
-  </div>
-}
+      )}
+    </div>
+  );
+};
 
 const CreateAndBranding = () => {
   const {
@@ -101,7 +111,11 @@ const CreateAndBranding = () => {
               items={ECOSYSTEM_OPTIONS}
               renderValue={(items) => {
                 return items?.map((item) => (
-                  <RenderValueSelectField key={item.key} icon={item?.data?.icon} label={item.data?.label} />
+                  <RenderValueSelectField
+                    key={item.key}
+                    icon={item?.data?.icon}
+                    label={item.data?.label}
+                  />
                 ));
               }}
               selectedKeys={[field.value]}
@@ -111,11 +125,16 @@ const CreateAndBranding = () => {
               isDisabled={true}
             >
               {(ecosystem) => (
-                <SelectItem key={ecosystem.key} value={ecosystem.value} classNames={{
-                  base: "select-item bg-white py-3 item-center data-[hover=true]:bg-white/80 data-[selectable=true]:focus:bg-white/80 data-[selectable=true]:text-[#202020] data-[selectable=true]:focus:text-[#202020] data-[selected=true]:border-b data-[selected=true]:border-[#2F302B] px-0 rounded-none",
-                  title: 'text-base leading-[16px]',
-                  selectedIcon: 'block p-1 w-6 h-6 border-[0.5px] border-[#202020] shadow-[1.125px_1.125px_0px_0px_#000] rounded hidden'
-                }}>
+                <SelectItem
+                  key={ecosystem.key}
+                  value={ecosystem.value}
+                  classNames={{
+                    base: "select-item bg-white py-3 item-center data-[hover=true]:bg-white/80 data-[selectable=true]:focus:bg-white/80 data-[selectable=true]:text-[#202020] data-[selectable=true]:focus:text-[#202020] data-[selected=true]:border-b data-[selected=true]:border-[#2F302B] px-0 rounded-none",
+                    title: "text-base leading-[16px]",
+                    selectedIcon:
+                      "block p-1 w-6 h-6 border-[0.5px] border-[#202020] shadow-[1.125px_1.125px_0px_0px_#000] rounded hidden",
+                  }}
+                >
                   <div className="flex items-center gap-3">
                     <img src={ecosystem.icon} alt="icon" />
                     <span className="pt-1">{ecosystem.label}</span>
@@ -136,7 +155,11 @@ const CreateAndBranding = () => {
                 items={TARGET_NETWORK_OPTIONS}
                 renderValue={(items) => {
                   return items?.map((item) => (
-                    <RenderValueSelectField key={item.key} icon={item?.data?.icon} label={item.data?.label} />
+                    <RenderValueSelectField
+                      key={item.key}
+                      icon={item?.data?.icon}
+                      label={item.data?.label}
+                    />
                   ));
                 }}
                 selectedKeys={[field.value]}
@@ -151,8 +174,9 @@ const CreateAndBranding = () => {
                     value={targetNetwork.value}
                     classNames={{
                       base: "select-item bg-white py-3 item-center data-[hover=true]:bg-white/80 data-[selectable=true]:focus:bg-white/80 data-[selectable=true]:text-[#202020] data-[selectable=true]:focus:text-[#202020] data-[selected=true]:border-b data-[selected=true]:border-[#2F302B] px-0 rounded-none",
-                      title: 'text-base leading-[16px]',
-                      selectedIcon: 'block p-1 w-6 h-6 border-[0.5px] border-[#202020] shadow-[1.125px_1.125px_0px_0px_#000] rounded hidden'
+                      title: "text-base leading-[16px]",
+                      selectedIcon:
+                        "block p-1 w-6 h-6 border-[0.5px] border-[#202020] shadow-[1.125px_1.125px_0px_0px_#000] rounded hidden",
                     }}
                   >
                     <div className="flex items-center gap-3">
@@ -175,7 +199,11 @@ const CreateAndBranding = () => {
                 items={WALLET_NETWORK_OPTIONS}
                 renderValue={(items) => {
                   return items?.map((item) => (
-                    <RenderValueSelectField key={item.key} icon={item?.data?.icon} label={item.data?.label} />
+                    <RenderValueSelectField
+                      key={item.key}
+                      icon={item?.data?.icon}
+                      label={item.data?.label}
+                    />
                   ));
                 }}
                 selectedKeys={[field.value]}
@@ -190,8 +218,9 @@ const CreateAndBranding = () => {
                     value={walletNetwork.value}
                     classNames={{
                       base: "select-item bg-white py-3 item-center data-[hover=true]:bg-white/80 data-[selectable=true]:focus:bg-white/80 data-[selectable=true]:text-[#202020] data-[selectable=true]:focus:text-[#202020] data-[selected=true]:border-b data-[selected=true]:border-[#2F302B] px-0 rounded-none",
-                      title: 'text-base leading-[16px]',
-                      selectedIcon: 'block p-1 w-6 h-6 border-[0.5px] border-[#202020] shadow-[1.125px_1.125px_0px_0px_#000] rounded hidden'
+                      title: "text-base leading-[16px]",
+                      selectedIcon:
+                        "block p-1 w-6 h-6 border-[0.5px] border-[#202020] shadow-[1.125px_1.125px_0px_0px_#000] rounded hidden",
                     }}
                   >
                     <div className="flex items-center gap-3">
@@ -224,7 +253,7 @@ const CreateAndBranding = () => {
             <InputField
               {...field}
               label="Project Token"
-              placeholder="Enter token"
+              placeholder="Paste token address here"
               isInvalid={!!errors?.projectToken}
               errorMessage={errors?.projectToken?.message?.toString()}
             />
