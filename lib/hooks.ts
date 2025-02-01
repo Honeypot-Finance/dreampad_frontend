@@ -1,25 +1,25 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from "react";
 
-export const useOnce = (callback: Function, dependencies: any []) => {
-  const isInit = useRef(false)
+export const useOnce = (callback: Function, dependencies: readonly any[]) => {
+  const isInit = useRef(false);
   useEffect(() => {
     if (!isInit.current && dependencies.every(Boolean)) {
-      isInit.current = true
-      callback()
+      isInit.current = true;
+      callback();
     }
-  }, dependencies)
-}
+  }, dependencies);
+};
 
 export const useInterval = (callback: Function, interval: number) => {
-  const ref = useRef<any>()
-  const func =  useCallback(() =>  {
+  const ref = useRef<any>();
+  const func = useCallback(() => {
     ref.current = setTimeout(async () => {
-      await callback()
-      func()
-    }, interval)
-  }, [callback])
+      await callback();
+      func();
+    }, interval);
+  }, [callback]);
   useEffect(() => {
-    func()
-    return () => clearTimeout(ref.current)
-  }, [func])
-}
+    func();
+    return () => clearTimeout(ref.current);
+  }, [func]);
+};
