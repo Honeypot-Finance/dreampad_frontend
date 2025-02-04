@@ -22,7 +22,7 @@ Content-Type: application/json
   "provider": Address,
   "chain_id": number,
   "projectName": string,
-  "project_logo": string, //optional
+  "project_logo": string, //optional in api but it is required in front-end and it is recommended to be provided
   "banner_url": string, //optional
   "description": string, //optional
   "twitter": string, //optional

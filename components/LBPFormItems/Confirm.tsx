@@ -456,7 +456,54 @@ const Confirm = (props: Props) => {
             }
           } catch (error) {}
         });
+
         if (poolAddress) {
+          console.log("createPoolAsync", {
+            address: poolAddress,
+            name: projectName,
+            description: lbpDescription,
+            chainId: berachainBartioTestnet.id,
+            owner: account.address as string,
+            endsAt: dayjs(endTime).toDate(),
+            startsAt: dayjs(startTime).toDate(),
+            swapCount: 0,
+            swapFee: "0.3",
+            swapEnabled: sellingAllowed,
+            blockNumber: +res.blockNumber.toString(),
+            sellingAllowed: sellingAllowed,
+            assetTokenAddress: assetTokenAddress,
+            assetTokenName: formatedAssetToken.name,
+            assetTokenSymbol: formatedAssetToken.symbol,
+            shareTokenAddress: projectToken,
+            shareTokenName: formatedProjectToken.name,
+            shareTokenSymbol: formatedProjectToken.symbol,
+            txHash: txHash,
+            assetTokenDecimals: formatedAssetToken.decimals,
+            assetsInitial: "",
+            fundsRaised: 0,
+            lbpMarketcap: "",
+            liquidity: "",
+            shareTokenDecimals: formatedProjectToken.decimals,
+            sharesInitial: "",
+            sharesReleased: "",
+            volume: "",
+            weightStart: parseEther(`${startWeight / 100}`).toString(),
+            weightEnd: parseEther(`${endWeight / 100}`).toString(),
+            assetsCurrent: parseUnits(
+              `${assetTokenQuantity}`,
+              formatedAssetToken?.decimals ?? 18
+            ).toString(),
+            numberParticipants: 0,
+            sharesCurrent: parseUnits(
+              `${projectTokenQuantity}`,
+              formatedProjectToken?.decimals ?? 18
+            ).toString(),
+            bannerUrl: saleBanner,
+            imageUrl: projectTokenLogo,
+            learnMoreUrl: projectLink,
+            redemptionDelay:
+              tokenClaimDelayHours * 60 * 60 + tokenClaimDelayMinutes * 60,
+          });
           await createPoolAsync({
             address: poolAddress,
             name: projectName,

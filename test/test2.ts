@@ -1,0 +1,40 @@
+//this is success data for Fjord API call
+{
+  address: "0x67893e31522df4Cb7Be16cC3D72bA1f68d7A2791";
+  assetTokenAddress: "0x2c2fc71339acdd913734a4cae9dd95d9d2b1438d";
+  assetTokenDecimals: 18;
+  assetTokenName: "BERA THE POOH";
+  assetTokenSymbol: "BTP";
+  assetsCurrent: "10000000000000000000";
+  assetsInitial: "";
+  bannerUrl: "http://localhost:5001/images/launch-project/launch-project-sticky2.png";
+  blockNumber: 10043022;
+  chainId: 80084;
+  description: "t";
+  endsAt: "Thu Feb 13 2025 19:10:03 GMT-0700 (Mountain Standard Time) {}";
+  fundsRaised: 0;
+  imageUrl: "http://localhost:5001/images/launch-project/launch-project-sticky2.png";
+  lbpMarketcap: "";
+  learnMoreUrl: "";
+  liquidity: "";
+  name: "TTTT";
+  numberParticipants: 0;
+  owner: "0x15DBEF52323b7A0335C385800E5A78C3609Cf830";
+  redemptionDelay: 0;
+  sellingAllowed: true;
+  shareTokenAddress: "0xfc5e3743e9fac8bb60408797607352e24db7d65e";
+  shareTokenDecimals: 18;
+  shareTokenName: "Test Honeypot Finance";
+  shareTokenSymbol: "tHPOT";
+  sharesCurrent: "10000000000000000000";
+  sharesInitial: "";
+  sharesReleased: "";
+  startsAt: "Sat Feb 01 2025 19:10:03 GMT-0700 (Mountain Standard Time) {}";
+  swapCount: 0;
+  swapEnabled: true;
+  swapFee: "0.3";
+  txHash: "0x240176ab7c8b5afd786927119f2971b50704ad9468946e21daefcf0e0fdb613c";
+  volume: "";
+  weightEnd: "790000000000000000";
+  weightStart: "200000000000000000";
+}

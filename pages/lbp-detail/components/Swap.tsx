@@ -555,8 +555,12 @@ export const SwapCard = observer(
                     )}
                   </Button>
                 )}
-                <div className="text-sm cursor-pointer leading-3 font-normal text-center text-white/50">
-                  {/* Add token name to wallet */}
+                <div className="text-lg  text-red-500">
+                  error:{" "}
+                  {previewSharesOutError?.message ||
+                    previewAssetsInError?.message ||
+                    previewAssetsOutError?.message ||
+                    previewSharesInError?.message}
                 </div>
               </div>
             </>
