@@ -1,6 +1,6 @@
 import { Network, networks } from "./chain";
 import BigNumber from "bignumber.js";
-import { Address, PublicClient, WalletClient } from "viem";
+import { Address, PublicClient, WalletClient, zeroAddress } from "viem";
 import { RouterV2Contract } from "./contract/dex/routerv2-contract";
 import { FactoryContract } from "./contract/dex/factory-contract";
 import { FtoFactoryContract } from "./contract/launches/fto/ftofactory-contract";
@@ -11,6 +11,7 @@ import { StorageState } from "./utils";
 import { MemeFactoryContract } from "@/services/contract/launches/pot2pump/memefactory-contract";
 import { MEMEFacadeContract } from "@/services/contract/launches/pot2pump/memefacade-contract";
 import { ICHIVaultFactoryContract } from "@/services/contract/aquabera/ICHIVaultFactory-contract";
+import { DEFAULT_CHAIN_ID } from "@/config/algebra/default-chain-id";
 
 export class Wallet {
   account: string = "";
@@ -52,21 +53,20 @@ export class Wallet {
         this.initWallet(this.walletClient);
       }
     );
+    reaction(
+      () => this.walletClient?.chain,
+      () => {
+        this.initWallet(this.walletClient);
+      }
+    );
   }
 
-  async initWallet(walletClient: WalletClient) {
+  async initWallet(walletClient?: WalletClient) {
+    console.log("initWallet");
     this.networks = networks;
-    if (
-      !walletClient.chain?.id ||
-      !this.networksMap[walletClient.chain.id] ||
-      !walletClient.account?.address ||
-      !this.networksMap[walletClient.chain.id].isActive
-    ) {
-      return;
-    }
-    this.currentChainId = walletClient.chain.id;
+    this.currentChainId = walletClient?.chain?.id || DEFAULT_CHAIN_ID;
     const mockAccount = localStorage.getItem("mockAccount");
-    this.account = mockAccount || walletClient.account.address;
+    this.account = mockAccount || walletClient?.account?.address || zeroAddress;
     this.contracts = {
       routerV2: new RouterV2Contract({
         address: this.currentChain.contracts.routerV2,
@@ -91,7 +91,9 @@ export class Wallet {
       }),
     };
     this.publicClient = createPublicClientByChain(this.currentChain.chain);
-    this.walletClient = walletClient;
+    if (walletClient) {
+      this.walletClient = walletClient;
+    }
     this.currentChain.init();
     await StorageState.sync();
     this.isInit = true;

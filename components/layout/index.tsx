@@ -1,10 +1,9 @@
 /* eslint-disable @next/next/no-before-interactive-script-outside-document */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "./header/v3";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
 import { networksMap } from "@/services/chain";
-import LaunchHeader from "./LaunchHeader";
 import { cn } from "@/lib/tailwindcss";
 import NotConnetctedDisplay from "../NotConnetctedDisplay/NotConnetctedDisplay";
 import ConfettiComponent from "../atoms/Confetti/Confetti";
@@ -19,6 +18,8 @@ import Script from "next/script";
 import { Footer } from "./footer";
 import { chatService, presetQuestions, questionTitles } from "@/services/chat";
 import _ from "lodash";
+import { wallet } from "@/services/wallet";
+import { useObserver } from "mobx-react-lite";
 
 export const Layout = ({
   children,
@@ -28,8 +29,8 @@ export const Layout = ({
   className?: string;
 }) => {
   const router = useRouter();
-  const { chainId } = useAccount();
-  const currentChain = chainId ? networksMap[chainId] : null;
+  const currentChain = useObserver(() => wallet.currentChain);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   useEffect(() => {
     //if its user first time visit, open chat
@@ -79,14 +80,47 @@ export const Layout = ({
     });
   }, []);
 
+  // useEffect(() => {
+  //   const inviteCode = localStorage.getItem("inviteCode");
+  //   if (!inviteCode) {
+  //     setShowInviteModal(true);
+  //   }
+  // }, []);
+
+  const handleInviteCodeSubmit = async (code: string) => {
+    try {
+      const response = await fetch("/api/verify-invitation-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem("inviteCode", code);
+        setShowInviteModal(false);
+      } else {
+        throw new Error(data.message || "Invalid invitation code");
+      }
+    } catch (error) {
+      throw new Error("Invalid invitation code");
+    }
+  };
+
   const slogans = [
+    // <>
+    //   <Link href="/derbydashboard" className="flex items-center ">
+    //     <span> Back your horse in the Berachain Derby 🏇</span>
+    //   </Link>
+    // </>,
     <>
-      <Link href="/derbydashboard" className="flex items-center ">
-        <span> Back your horse in the Berachain Derby 🏇</span>
-      </Link>
-    </>,
-    <>
-      <Link href="/launch-token?launchType=meme" className="flex items-center">
+      <Link
+        href="https://pot2pump.honeypotfinance.xyz/launch-token?launchType=meme"
+        className="flex items-center"
+      >
         <span className="flex items-center justify-center gap-2">
           Launch a new meme token within 5 seconds 🚀
         </span>
@@ -101,6 +135,10 @@ export const Layout = ({
         className
       )}
     >
+      {/* {showInviteModal && (
+        <InvitationCodeModal onSubmit={handleInviteCodeSubmit} />
+      )} */}
+
       <Script
         src="/charting_library/charting_library.standalone.js"
         strategy="beforeInteractive"
@@ -117,19 +155,33 @@ export const Layout = ({
       <ConfettiComponent />
       <PopOverModal />
       <Header />
-      {currentChain ? (
-        currentChain?.isActive ? (
-          <div className="flex-1 flex">{children}</div>
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold">Chain will be support soon</h1>
-              <p className="text-lg">Check back later for more information</p>
+      {!showInviteModal ? (
+        currentChain ? (
+          currentChain?.isActive ? (
+            <div className="flex-1 flex">{children}</div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <h1 className="text-2xl font-bold">
+                  Chain will be support soon
+                </h1>
+                <p className="text-lg">Check back later for more information</p>
+              </div>
             </div>
-          </div>
+          )
+        ) : (
+          <NotConnetctedDisplay />
         )
       ) : (
-        <NotConnetctedDisplay />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-lg">
+              {showInviteModal
+                ? "Please enter invitation code to continue"
+                : "Coming soon check back later"}
+            </p>
+          </div>
+        </div>
       )}
       <Footer />
     </div>

@@ -307,9 +307,6 @@ class Liquidity {
 
   constructor() {
     makeAutoObservable(this);
-    this.getBundlePrice().then(() => {
-      //console.log("bundlePrice", this.bundlePrice);
-    });
     reaction(
       () => this.fromToken?.address,
       () => {

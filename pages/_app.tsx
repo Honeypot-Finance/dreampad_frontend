@@ -53,11 +53,15 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
   const { data: walletClient } = useWalletClient({
     config,
   });
+
   useEffect(() => {
-    if (walletClient?.account) {
-      wallet.initWallet(walletClient);
-    }
+    wallet.initWallet(walletClient);
   }, [walletClient]);
+
+  useEffect(() => {
+    wallet.initWallet();
+  }, []);
+
   return children;
 };
 
