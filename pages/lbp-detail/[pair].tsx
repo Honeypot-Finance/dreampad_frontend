@@ -1,53 +1,24 @@
-import { Spinner } from "@nextui-org/react";
+"use client";
+
+import React from "react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import CardContainer from "@/components/CardContianer/v3";
+import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
 import { useRouter } from "next/router";
-import { Address, formatUnits, isAddress, parseUnits } from "viem";
-import { LiquidityBootstrapPoolABI } from "@/lib/abis/LiquidityBootstrapPoolAbi";
-import { BigNumber } from "ethers";
 import useMulticall3 from "@/components/hooks/useMulticall3";
-import {
-  formatErc20Data,
-  formatLBPPoolData,
-  Pool,
-} from "@/services/lib/helper";
 import { ERC20ABI } from "@/lib/abis/erc20";
-import { useReadContract } from "wagmi";
-import dayjs from "dayjs";
-import ProjectTitle from "./components/ProjectTitle";
-import ProjectStatus from "./components/ProjectStatus";
-import TokenRaised from "./components/TokenRaised";
-import SaleProgress from "./components/SaleProgress";
-import { amountFormatted } from "@/lib/format";
-import TokenAddress from "./components/TokenAddress";
-import TokenDetails from "./components/TokenDetails";
-import { Logo } from "@/components/svg/logo";
-import CountdownTimer from "./components/Countdown";
-import ProjectDetails from "./components/ProjectDetails";
-import { useQuery } from "@tanstack/react-query";
+import { LiquidityBootstrapPoolABI } from "@/lib/abis/LiquidityBootstrapPoolAbi";
 import FjordHoneySdk from "@/services/fjord_honeypot_sdk";
-import { SwapCard } from "./components/Swap";
-import { motion } from "framer-motion";
-import { itemPopUpVariants } from "@/lib/animation";
-import V3SwapCard from "@/components/algebra/swap/V3SwapCard";
-import { wallet } from "@/services/wallet";
-import KlineChart from "@/pages/launch-detail/components/KlineChart";
-import { cn } from "@/lib/tailwindcss";
+import { formatLBPPoolData, formatErc20Data } from "@/services/lib/helper";
+import { Pool } from "@cryptoalgebra/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { BigNumber } from "ethers";
+import { Address } from "viem";
+import dayjs from "dayjs";
+import { parseUnits, formatUnits } from "viem";
+import { useReadContract } from "wagmi";
 
-const RankProjectData = [
-  { icon: "🚀", value: 10 },
-  { icon: "🔥", value: 10 },
-  { icon: "💩", value: 10 },
-  { icon: "🚩", value: 10 },
-];
-
-const ProjectDetailTabs = [
-  { title: "Token Info", key: 1 },
-  { title: "About the Project", key: 2 },
-  { title: "Transactions", key: 3 },
-];
-
-const LBPDetail = () => {
+const LBPDetailPage = () => {
   const router = useRouter();
   const { pair: pairAddress } = router.query;
 
@@ -161,15 +132,6 @@ const LBPDetail = () => {
     },
   });
 
-  useEffect(() => {
-    if (!isAddress((pairAddress as Address) ?? "")) {
-      router.push("/");
-    }
-  }, [pairAddress, router]);
-  const [activeProjectDetailTab, setActiveProjectDetailTab] = useState<
-    1 | 2 | 3
-  >(1);
-
   const percentOfTokenSold =
     data?.args?.totalPurchased && data?.args?.shares
       ? Math.round(
@@ -185,178 +147,367 @@ const LBPDetail = () => {
   const isSaleEnd = data?.args?.saleEnd * 1000 < Date.now();
 
   return (
-    <div className="px-2 md:px-6 xl:max-w-[1200px] mx-auto pb-[20vh]">
-      {isErc20Loading || isArgsLoading ? (
-        <div className="flex items-center justify-center">
-          <Spinner />
-        </div>
-      ) : (
-        <>
-          <div
-            className={cn(
-              "grid grid-cols-2 gap-4 xl:w-[1170px]",
-              isSaleEnd && "grid-cols-[1fr_400px]"
-            )}
-          >
-            <div className="bg-[#271A0C] col-span-2 px-5 py-2.5 rounded-[30px] flex md:items-center md:justify-between md:flex-row flex-col gap-2 md:gap-0">
-              <div className="flex items-center gap-x-4 md:gap-x-[7.5px]">
-                <div className="size-10 md:size-[77px] bg-[#ECC94E] flex items-center justify-center rounded-full">
-                  <Image
-                    src="/images/icons/tokens/thpot-token-yellow-icon.png"
-                    alt={token?.name}
-                    width={77}
-                    height={77}
-                    className="rounded-full hidden md:inline-block"
-                  />
+    <div className="min-h-screen relative w-full font-gliker">
+      <div className="container mx-auto max-w-[1320px] space-y-[72px]">
+        <CardContainer showBottomBorder={false}>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 p-8">
+            <div className="space-y-4 col-span-2">
+              <div className="space-y-2">
+                <div className="flex justify-center items-center w-[74px] h-[32px] bg-white rounded-[4px] border-[0.75px] border-[#202020] shadow-[1px_1px_0px_0px_#000] text-[14px]">
+                  $OVL
                 </div>
-                <ProjectTitle name={token?.name} displayName={token?.symbol} />
+
+                <h1 className="text-[30px] text-[#0D0D0D] font-gliker text-stroke-0.5 text-stroke-white text-shadow-[1px_2px_0px_#AF7F3D]">
+                  Overlay
+                </h1>
+                <p className="text-[#4D4D4D]">
+                  Overlay uses a dynamic mint/burn model built around the $OVL
+                  token to enable counterpart-free trades, solving the liquidity
+                  problem that haunts exotic markets.
+                </p>
               </div>
 
-              <div className="flex items-center md:gap-x-8 gap-x-0 justify-between md:justify-start">
-                <CountdownTimer
-                  label={isStart ? "Ends In" : "Start In"}
-                  date={
-                    isStart
-                      ? data.args.saleEnd * 1000
-                      : data.args.saleStart * 1000
-                  }
-                />
-                {!isSaleEnd && <ProjectStatus isStart={isStart} />}
+              <div className="rounded-[16px] border border-black bg-white shadow-[4px_4px_0px_0px_#D29A0D] p-4">
+                <div className="divide-y divide-black">
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-[#4D4D4D] text-xs">
+                      Token Sale Type
+                    </span>
+                    <div className="text-[#202020] text-base flex items-center gap-1">
+                      Fixed Price
+                      <Image
+                        src="/images/lbp-detail/logo/link.svg"
+                        alt="link"
+                        width={16}
+                        height={16}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-[#4D4D4D] text-xs">
+                      Network Chain
+                    </span>
+                    <div className="text-[#202020] text-base flex items-center gap-1">
+                      Arbitrum
+                      <Image
+                        src="/images/lbp-detail/logo/arb.png"
+                        alt="arbitrum"
+                        width={16}
+                        height={16}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-[#4D4D4D] text-xs">
+                      Token Vesting
+                    </span>
+                    <div className="text-[#202020] text-base flex items-center gap-1">
+                      None
+                      <Image
+                        src="/images/lbp-detail/logo/lock.svg"
+                        alt="lock"
+                        width={16}
+                        height={16}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-[#4D4D4D] text-xs">
+                      Launch Partner
+                    </span>
+                    <div className="text-[#202020] text-base flex items-center gap-1">
+                      Honeypot Finance
+                      <Image
+                        src="/images/lbp-detail/logo/honeypot.png"
+                        alt="honeypot"
+                        width={16}
+                        height={16}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-[#4D4D4D] text-xs">Round Type</span>
+                    <div className="text-[#202020] text-base flex items-center gap-1">
+                      Public
+                      <Image
+                        src="/images/lbp-detail/logo/person.svg"
+                        alt="person"
+                        width={16}
+                        height={16}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {isSaleEnd ? (
-              <div className="hidden md:block">
-                <KlineChart height={500} />
-              </div>
-            ) : (
-              <div className="bg-[#271A0C] p-5 rounded-2xl space-y-3 col-span-2 lg:col-span-1">
-                <TokenRaised
-                  depositedAmount={Number(
-                    formatUnits(data?.args?.totalPurchased, token.decimals)
-                  ).toFixed(3)}
-                  minCapAmount={Number(
-                    formatUnits(data?.args?.shares, token.decimals)
-                  ).toFixed(3)}
-                />
-
-                <SaleProgress
-                  progressValue={percentOfTokenSold}
-                  progressLabel={`${percentOfTokenSold.toFixed(2)}%`}
-                  depositedAmount={amountFormatted(data?.args?.totalPurchased, {
-                    decimals: token.decimals,
-                    fixed: 3,
-                    prefix: "$",
-                  })}
-                  raisedTokenMinCap={amountFormatted(data?.args?.shares, {
-                    decimals: token.decimals,
-                    fixed: 3,
-                    prefix: "$",
-                  })}
-                />
-
-                <TokenAddress address={data?.args?.share} />
-
-                <TokenDetails
-                  fullDiluted={formatUnits(
-                    data?.args?.maxTotalAssetsInDeviation,
-                    14
-                  )}
-                  price={formatUnits(
-                    previewAssetsIn ?? BigInt(0),
-                    assetToken?.decimals ?? 18
-                  )}
-                  fundsRaised={formatUnits(
-                    data?.totalAssetsIn ?? 0,
-                    assetToken?.decimals || 18
-                  )}
-                  startTimeDisplay={dayjs
-                    .unix(Number(data?.args?.saleStart ?? 0))
-                    .format("MMMM D, YYYY")}
-                  endTimeDisplay={dayjs
-                    .unix(Number(data?.args?.saleEnd ?? 0))
-                    .format("MMMM D, YYYY")}
-                />
-
-                <hr />
-                <p className="text-white/65 text-sm mt-2.5">Rank Project</p>
-                <div className="flex gap-5">
-                  {RankProjectData.map((project, i) => {
-                    return (
-                      <div
-                        key={i}
-                        className="mt-[8px] flex-1 flex flex-col  justify-center items-center [background:#3B2912] px-3 py-3 rounded-[10px] hover:[background:#FFCD4D] active:[background:#F0A000] cursor-pointer select-none"
-                      >
-                        <p>{project.icon}</p>
-                        <p> {project.value}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            <div className="rounded-2xl space-y-3 col-span-2 lg:col-span-1">
-              {isSaleEnd ? (
-                <motion.div
-                  variants={itemPopUpVariants}
-                  initial="hidden"
-                  animate="visible"
-                  className="relative w-full h-full flex flex-col items-center justify-start col-span-2 lg:col-span-1"
-                >
-                  <V3SwapCard
-                    fromTokenAddress={data?.args?.share ?? undefined}
-                    toTokenAddress={
-                      data?.args?.asset ??
-                      wallet.currentChain.platformTokenAddress.HPOT
-                    }
-                  />
-                </motion.div>
-              ) : (
-                <SwapCard
-                  sharePriceInAsset={previewAssetsIn?.toString() ?? ""}
-                  poolId={pool?.id ?? ""}
-                  asset={{
-                    decimals: assetToken.decimals,
-                    name: assetToken.name,
-                    symbol: assetToken.symbol,
-                    totalSupply: assetToken.totalSupply,
-                    address: data?.args?.asset as Address,
-                  }}
-                  share={{
-                    decimals: token.decimals,
-                    name: token.name,
-                    symbol: token.symbol,
-                    totalSupply: token.totalSupply,
-                    address: data?.args?.share as Address,
-                  }}
-                  poolAddress={pairAddress as Address}
-                  allowSell={Boolean(data?.args?.sellingAllowed)}
-                  refetchArgs={refetchArgs}
-                />
-              )}
-            </div>
+            {/* Right Column - Logo */}
+            <Image
+              src="/images/lbp-detail/overlay-logo.png"
+              alt="Overlay Logo"
+              className="relative w-full h-full object-contain col-span-3"
+              width={500}
+              height={500}
+              priority
+            />
           </div>
+        </CardContainer>
 
-          <div className="w-full flex items-center justify-between my-4 md:my-12">
-            <div className="text-lg md:text-xl">Project Details</div>
-            <div className="flex items-center gap-x-1">
-              <Logo />
-              <span className='text-[#FFCD4D] [font-family:"Bebas_Neue"] text-lg md:text-3xl'>
-                Honeypot Finance
+        <CardContainer
+          className="bg-transparent border-3 border-[#FFCD4D] px-8 grid grid-cols-6 gap-y-7 gap-x-6 items-start"
+          showBottomBorder={false}
+        >
+          <div className="rounded-[24px] border-2 border-dashed border-black bg-white p-8 text-center col-span-6">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Image
+                src="/images/lbp-detail/logo/warning.svg"
+                alt="warning"
+                width={24}
+                height={24}
+              />
+              <span className="font-bold text-[#FFCD4D] text-shadow-[1.081px_2.162px_0px_#AF7F3D] text-stroke-0.5 text-stroke-black text-2xl">
+                Warning!
               </span>
             </div>
+            <p className="text-[#4D4D4D] mb-4 text-xs w-[80%] mx-auto">
+              Please be aware that engaging with a Token Sale on Fjord Foundry
+              carries significant risk. The tokens acquired through Sales can
+              potentially lose all value. Fjord Foundry assumes no
+              responsibility for losses. Exercise caution and conduct thorough
+              research (DYOR) before investing.
+            </p>
+            <p className="text-[#4D4D4D] mb-2 text-xs w-[80%] mx-auto">
+              Additionally, third party curation is not an indicator of project
+              quality and token value always investigate independently.
+            </p>
+            <button className="bg-white rounded-[16px] border border-black py-3 px-8 shadow-[4px_4px_0px_0px_#000000] mt-6">
+              I Accept These Risks
+            </button>
           </div>
 
-          <ProjectDetails
-            token={token}
-            tokenAddress={data?.args?.share}
-            description={pool?.description}
-          />
-        </>
-      )}
+          <CardContainer className="col-span-4">
+            <div className="space-y-6 w-full">
+              <div className="grid grid-cols-[220px_1fr] gap-6 items-start">
+                <div className="space-y-4">
+                  <div className="bg-white rounded-[16px] border border-black p-5 shadow-[4px_4px_0px_0px_#D29A0D] hover:shadow-[2px_2px_0px_0px_#D29A0D] transition-shadow">
+                    <div className="text-sm text-[#4D4D4D] mb-2 text-center">
+                      Price per OVL
+                    </div>
+                    <div className="text-[24px] text-white text-shadow-[1.481px_2.963px_0px_#AF7F3D] text-stroke-1 text-stroke-black text-center">
+                      0.281 USDC
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-[16px] border border-black p-5 shadow-[4px_4px_0px_0px_#D29A0D] hover:shadow-[2px_2px_0px_0px_#D29A0D] transition-shadow">
+                    <div className="text-sm text-[#4D4D4D] mb-2 text-center">
+                      Min/Max Allocation
+                    </div>
+                    <div className="text-[24px] text-white text-shadow-[1.481px_2.963px_0px_#AF7F3D] text-stroke-1 text-stroke-black text-center">
+                      0 - 50K
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-[16px] border border-black p-5 shadow-[4px_4px_0px_0px_#D29A0D] hover:shadow-[2px_2px_0px_0px_#D29A0D] transition-shadow">
+                    <div className="text-sm text-[#4D4D4D] mb-2 text-center">
+                      Funds Raised
+                    </div>
+                    <div className="text-[24px] text-white text-shadow-[1.481px_2.963px_0px_#AF7F3D] text-stroke-1 text-stroke-black text-center">
+                      $704.2k
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-[16px] border border-black p-5 shadow-[4px_4px_0px_0px_#D29A0D] hover:shadow-[2px_2px_0px_0px_#D29A0D] transition-shadow">
+                    <div className="text-sm text-[#4D4D4D] mb-2 text-center">
+                      FDV Marketcap
+                    </div>
+                    <div className="text-[24px] text-white text-shadow-[1.481px_2.963px_0px_#AF7F3D] text-stroke-1 text-stroke-black text-center">
+                      $25M
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-[16px] border border-black p-5 shadow-[4px_4px_0px_0px_#D29A0D] hover:shadow-[2px_2px_0px_0px_#D29A0D] transition-shadow">
+                    <div className="text-sm text-[#4D4D4D] mb-2 text-center">
+                      Sale Marketcap
+                    </div>
+                    <div className="text-[24px] text-white text-shadow-[1.481px_2.963px_0px_#AF7F3D] text-stroke-1 text-stroke-black text-center">
+                      $690.4k
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-[16px] border border-black border-dashed p-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-separate border-spacing-0">
+                      <thead>
+                        <tr>
+                          <th className="text-left text-xs text-[#4D4D4D] py-2">
+                            Time
+                          </th>
+                          <th className="text-left text-xs text-[#4D4D4D] py-2">
+                            Address
+                          </th>
+                          <th className="text-left text-xs text-[#4D4D4D] py-2">
+                            Amount In
+                          </th>
+                          <th className="text-left text-xs text-[#4D4D4D] py-2">
+                            Amount Out
+                          </th>
+                          <th className="text-left text-xs text-[#4D4D4D] py-2">
+                            Type
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Array(9)
+                          .fill(0)
+                          .map((_, index) => (
+                            <tr key={index}>
+                              <td className="text-sm text-[#4D4D4D] py-3 border-b border-black">
+                                10 days ago
+                              </td>
+                              <td className="text-sm text-[#4D4D4D] font-mono py-3 border-b border-black">
+                                0x2c73...7BA9
+                              </td>
+                              <td className="py-3 border-b border-black">
+                                <div className="flex items-center gap-1">
+                                  <Image
+                                    src="/images/lbp-detail/logo/arb.png"
+                                    alt="eth"
+                                    width={16}
+                                    height={16}
+                                    className="inline-block"
+                                  />
+                                  <span className="text-[#4BC964] text-sm">
+                                    2.2
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="py-3 border-b border-black">
+                                <div className="flex items-center gap-1">
+                                  <Image
+                                    src="/images/lbp-detail/logo/arb.png"
+                                    alt="token"
+                                    width={16}
+                                    height={16}
+                                    className="inline-block"
+                                  />
+                                  <span className="text-sm">23.02k</span>
+                                </div>
+                              </td>
+                              <td className="py-3 border-b border-black">
+                                <span className="text-[#4BC964] text-sm">
+                                  Buy
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination */}
+                  <div className="flex items-center justify-center mt-6 gap-4">
+                    <button className="w-8 h-8 flex items-center justify-center text-base">
+                      <HiOutlineChevronLeft size={16} />
+                    </button>
+                    <button className="w-8 h-8 flex items-center justify-center border border-black rounded-[4.571px] bg-[#FFCD4D] shadow-[1px_1px_0px_0px_#000] text-base font-bold">
+                      1
+                    </button>
+                    <button className="w-8 h-8 flex items-center justify-center text-base">
+                      2
+                    </button>
+                    <button className="w-8 h-8 flex items-center justify-center text-base">
+                      3
+                    </button>
+                    <button className="w-8 h-8 flex items-center justify-center text-base">
+                      4
+                    </button>
+                    <span className="text-base text-[#4D4D4D]">........</span>
+                    <button className="w-8 h-8 flex items-center justify-center text-base">
+                      68
+                    </button>
+                    <button className="w-8 h-8 flex items-center justify-center text-base">
+                      <HiOutlineChevronRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-[16px] border-2 border-[#5A4A4A] p-2 shadow-[2px_2px_0px_0px_#202020,2px_4px_0px_0px_#202020]">
+                <div className="text-center">
+                  <div className="text-lg font-bold">100.00%</div>
+                  <div className="text-sm text-[#4D4D4D]">
+                    2,455M / 2,4555M OVL
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContainer>
+
+          <div className="col-span-2">
+            <CardContainer>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-[#4D4D4D]">Sale Status</div>
+                  <div className="text-base font-bold">Ended</div>
+                </div>
+                <div>
+                  <div className="text-sm text-[#4D4D4D] mb-2">Completed</div>
+                  <div className="grid grid-cols-4 gap-2 text-center">
+                    <div>
+                      <div className="text-xl font-bold">1</div>
+                      <div className="text-xs text-[#4D4D4D]">Days</div>
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold">0</div>
+                      <div className="text-xs text-[#4D4D4D]">Hours</div>
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold">37</div>
+                      <div className="text-xs text-[#4D4D4D]">Minutes</div>
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold">45</div>
+                      <div className="text-xs text-[#4D4D4D]">Seconds</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-[16px] border border-black p-4 text-center">
+                  <div className="mb-4">
+                    <Image
+                      src="/images/lbp-detail/logo/check.svg"
+                      alt="check"
+                      width={32}
+                      height={32}
+                      className="mx-auto"
+                    />
+                  </div>
+                  <div className="text-lg font-bold mb-2">Sale Ended</div>
+                  <div className="text-sm text-[#4D4D4D] mb-4">
+                    The token sale has ended. Tokens can be redeemed by clicking
+                    the &apos;Claim Tokens Here&apos; button below.
+                  </div>
+                  <div className="text-sm text-[#4D4D4D] mb-4">
+                    Some tokens may have a claim delay as set by the sale
+                    creator.
+                  </div>
+                  <div className="border-t border-black pt-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Purchased tokens:</span>
+                      <span>0 OVL</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-black rounded-2xl p-4">
+                  <button className="w-full bg-[#FFCD4D] text-black rounded-xl text-[18px] py-3">
+                    Nothing to redeem
+                  </button>
+                </div>
+              </div>
+            </CardContainer>
+          </div>
+        </CardContainer>
+      </div>
     </div>
   );
 };
 
-export default LBPDetail;
+export default LBPDetailPage;

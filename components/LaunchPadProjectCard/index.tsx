@@ -302,7 +302,7 @@ const LaunchPadProjectCard = observer(
                 <div className="text-base leading-[20px] font-bold text-white">
                   <Link href={`/lbp-detail/${pairAddress}`}>
                     <Button className="w-full outline-2">
-                      <span className="font-bold text-[12px]">Buy Token</span>
+                      <span className="font-bold text-[12px]">View</span>
                     </Button>
                   </Link>
                 </div>
