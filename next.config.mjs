@@ -16,56 +16,13 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        port: "",
-        hostname: "res.cloudinary.com",
-      },
-      {
-        protocol: "https",
-        port: "",
-        hostname: "upload.wikimedia.org",
-      },
-      {
-        protocol: "https",
-        port: "",
-        hostname: "vphdxociarqnaxj6.public.blob.vercel-storage.com",
-      },
-      {
-        protocol: "https",
-        port: "",
-        hostname: "upload.wikimedia.org",
+        hostname: "*",
       },
       {
         protocol: "http",
-        port: "3000",
-        hostname: "localhost",
-      },
-      {
-        protocol: "http",
-        port: "5000",
-        hostname: "localhost",
-      },
-      {
-        protocol: "https",
-        port: "",
-        hostname: "honeypotfinance.xyz",
-      },
-      {
-        protocol: "https",
-        port: "",
-        hostname: "*.honeypotfinance.xyz",
-      },
-      {
-        protocol: "https",
-        port: "",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        port: "",
-        hostname: "cdn.alphakek.ai",
+        hostname: "*",
       },
     ],
-    domains: ["cdn.alphakek.ai"],
   },
   async redirects() {
     return [

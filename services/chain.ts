@@ -16,6 +16,7 @@ export class Network {
   get chainId() {
     return this.chain.id;
   }
+  chainImageUrl!: string;
   platformTokenAddress!: {
     HPOT: string;
   };
@@ -67,8 +68,6 @@ export class Network {
     }
   ) {
     Object.assign(this, args);
-    if (args) {
-    }
   }
   init() {
     this.nativeToken = Token.getToken(this.nativeToken);
@@ -94,6 +93,7 @@ export class Network {
 
 export const berachainBartioTestnetNetwork = new Network({
   chain: berachainBartioTestnet,
+  chainImageUrl: "/images/icons/tokens/wbera-token-icon.png",
   officialFaucets: [
     {
       url: "https://bartio.faucet.berachain.com",
@@ -551,6 +551,7 @@ export const networks = [
   movementNetWork,
   sprotoNetWork,
 ];
+
 export const networksMap = networks.reduce(
   (acc, network) => {
     acc[network.chainId] = network;

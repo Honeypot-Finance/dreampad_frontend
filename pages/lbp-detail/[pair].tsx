@@ -8,21 +8,24 @@ import { useRouter } from "next/router";
 import useMulticall3 from "@/components/hooks/useMulticall3";
 import { ERC20ABI } from "@/lib/abis/erc20";
 import { LiquidityBootstrapPoolABI } from "@/lib/abis/LiquidityBootstrapPoolAbi";
-import FjordHoneySdk from "@/services/fjord_honeypot_sdk";
+import FjordHoneySdk, { FjordPool } from "@/services/fjord_honeypot_sdk";
 import { formatLBPPoolData, formatErc20Data } from "@/services/lib/helper";
-import { Pool } from "@cryptoalgebra/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { BigNumber } from "ethers";
 import { Address } from "viem";
 import dayjs from "dayjs";
 import { parseUnits, formatUnits } from "viem";
 import { useReadContract } from "wagmi";
+import { WarningBanner } from "./WarningBanner";
+import { Pool } from "@marigoldlabs/fjord-honeypot-sdk";
+import { networksMap } from "@/services/chain";
+import { DEFAULT_CHAIN_ID } from "@/config/algebra/default-chain-id";
 
 const LBPDetailPage = () => {
   const router = useRouter();
   const { pair: pairAddress } = router.query;
 
-  const { data: pool } = useQuery({
+  const { data: pool } = useQuery<FjordPool | null>({
     queryKey: ["lbp-detail", pairAddress],
     queryFn: async () => {
       return await FjordHoneySdk.findPool(pairAddress as string);
@@ -154,17 +157,13 @@ const LBPDetailPage = () => {
             <div className="space-y-4 col-span-2">
               <div className="space-y-2">
                 <div className="flex justify-center items-center w-[74px] h-[32px] bg-white rounded-[4px] border-[0.75px] border-[#202020] shadow-[1px_1px_0px_0px_#000] text-[14px]">
-                  $OVL
+                  ${pool?.shareTokenSymbol}
                 </div>
 
                 <h1 className="text-[30px] text-[#0D0D0D] font-gliker text-stroke-0.5 text-stroke-white text-shadow-[1px_2px_0px_#AF7F3D]">
-                  Overlay
+                  {pool?.shareTokenName}
                 </h1>
-                <p className="text-[#4D4D4D]">
-                  Overlay uses a dynamic mint/burn model built around the $OVL
-                  token to enable counterpart-free trades, solving the liquidity
-                  problem that haunts exotic markets.
-                </p>
+                <p className="text-[#4D4D4D]">{pool?.description}</p>
               </div>
 
               <div className="rounded-[16px] border border-black bg-white shadow-[4px_4px_0px_0px_#D29A0D] p-4">
@@ -174,13 +173,13 @@ const LBPDetailPage = () => {
                       Token Sale Type
                     </span>
                     <div className="text-[#202020] text-base flex items-center gap-1">
-                      Fixed Price
-                      <Image
+                      {pool?.lbpType === "default" ? "LBP" : pool?.lbpType}
+                      {/* <Image
                         src="/images/lbp-detail/logo/link.svg"
                         alt="link"
                         width={16}
                         height={16}
-                      />
+                      /> */}
                     </div>
                   </div>
                   <div className="flex items-center justify-between py-2">
@@ -188,16 +187,22 @@ const LBPDetailPage = () => {
                       Network Chain
                     </span>
                     <div className="text-[#202020] text-base flex items-center gap-1">
-                      Arbitrum
+                      {
+                        networksMap[pool?.chainId ?? DEFAULT_CHAIN_ID].chain
+                          .name
+                      }
                       <Image
-                        src="/images/lbp-detail/logo/arb.png"
+                        src={
+                          networksMap[pool?.chainId ?? DEFAULT_CHAIN_ID]
+                            .chainImageUrl
+                        }
                         alt="arbitrum"
                         width={16}
                         height={16}
                       />
                     </div>
                   </div>
-                  <div className="flex items-center justify-between py-2">
+                  {/* <div className="flex items-center justify-between py-2">
                     <span className="text-[#4D4D4D] text-xs">
                       Token Vesting
                     </span>
@@ -210,7 +215,7 @@ const LBPDetailPage = () => {
                         height={16}
                       />
                     </div>
-                  </div>
+                  </div> */}
                   <div className="flex items-center justify-between py-2">
                     <span className="text-[#4D4D4D] text-xs">
                       Launch Partner
@@ -242,14 +247,24 @@ const LBPDetailPage = () => {
             </div>
 
             {/* Right Column - Logo */}
-            <Image
-              src="/images/lbp-detail/overlay-logo.png"
-              alt="Overlay Logo"
-              className="relative w-full h-full object-contain col-span-3"
-              width={500}
-              height={500}
-              priority
-            />
+            <div className="relative w-full h-[400px] object-contain col-span-3 pl-[50px]">
+              <Image
+                src={pool?.imageUrl ?? ""}
+                alt="Overlay Logo"
+                className="absolute h-[150px] w-[150px] object-cover top-[50%] left-[0px] translate-x-[-10%] translate-y-[-50%] z-10 rounded-full"
+                width={500}
+                height={500}
+                priority
+              />
+              <Image
+                src={pool?.bannerUrl ?? ""}
+                alt="Overlay Logo"
+                className="relative w-full h-full object-contain col-span-3"
+                width={500}
+                height={500}
+                priority
+              />
+            </div>
           </div>
         </CardContainer>
 
@@ -257,33 +272,7 @@ const LBPDetailPage = () => {
           className="bg-transparent border-3 border-[#FFCD4D] px-8 grid grid-cols-6 gap-y-7 gap-x-6 items-start"
           showBottomBorder={false}
         >
-          <div className="rounded-[24px] border-2 border-dashed border-black bg-white p-8 text-center col-span-6">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Image
-                src="/images/lbp-detail/logo/warning.svg"
-                alt="warning"
-                width={24}
-                height={24}
-              />
-              <span className="font-bold text-[#FFCD4D] text-shadow-[1.081px_2.162px_0px_#AF7F3D] text-stroke-0.5 text-stroke-black text-2xl">
-                Warning!
-              </span>
-            </div>
-            <p className="text-[#4D4D4D] mb-4 text-xs w-[80%] mx-auto">
-              Please be aware that engaging with a Token Sale on Fjord Foundry
-              carries significant risk. The tokens acquired through Sales can
-              potentially lose all value. Fjord Foundry assumes no
-              responsibility for losses. Exercise caution and conduct thorough
-              research (DYOR) before investing.
-            </p>
-            <p className="text-[#4D4D4D] mb-2 text-xs w-[80%] mx-auto">
-              Additionally, third party curation is not an indicator of project
-              quality and token value always investigate independently.
-            </p>
-            <button className="bg-white rounded-[16px] border border-black py-3 px-8 shadow-[4px_4px_0px_0px_#000000] mt-6">
-              I Accept These Risks
-            </button>
-          </div>
+          <WarningBanner />
 
           <CardContainer className="col-span-4">
             <div className="space-y-6 w-full">

@@ -4,6 +4,83 @@ import {
   Pool,
 } from "node_modules/@marigoldlabs/fjord-honeypot-sdk/dist/index.js";
 
+export type FjordPool = {
+  id: string;
+  address: string;
+  name: string;
+  description: string;
+  chainId: number;
+  owner: string;
+  startsAt: string;
+  endsAt: string;
+  swapCount: number;
+  swapFee: string;
+  swapEnabled: boolean;
+  blockNumber: number;
+  sellingAllowed: boolean;
+  assetTokenAddress: string;
+  assetTokenName: string;
+  assetTokenSymbol: string;
+  assetTokenDecimals: number;
+  shareTokenAddress: string;
+  shareTokenName: string;
+  shareTokenSymbol: string;
+  shareTokenDecimals: number;
+  txHash: string;
+  assetsInitial: string;
+  assetsCurrent: string;
+  sharesInitial: string;
+  sharesCurrent: string;
+  sharesReleased: string;
+  fundsRaised: number;
+  lbpMarketcap: string;
+  liquidity: string;
+  volume: string;
+  weightEnd: string;
+  weightStart: string;
+  numberParticipants: number;
+  bannerUrl: string;
+  imageUrl: string;
+  learnMoreUrl: string | null;
+  redemptionDelay: number;
+  ecosystem: string;
+  version: number;
+  semver: string;
+  createdAt: string;
+  updatedAt: string;
+  timestamp: string;
+  listed: boolean;
+  vestCliffStart: string | null;
+  vestEnd: string | null;
+  assetsPerShare: string | null;
+  virtualAssets: string;
+  lbpType: string;
+  closedBlockNumber: number | null;
+  completedBlockNumber: number | null;
+  endBlockNumber: number | null;
+  startBlockNumber: number | null;
+  lastBlockScannedPoolClosed: number | null;
+  lastBlockScannedPoolCompleted: number | null;
+  lastBlockScannedPoolCreated: number | null;
+  lastBlockScannedSwap: number | null;
+  lbpBanner: string | null;
+  liquidiyTransparency: string | null;
+  platformFee: string | null;
+  previousInvestmentRounds: string | null;
+  resume: string | null;
+  socials: string | null;
+  swapFeesAsset: string | null;
+  swapFeesPlatform: string | null;
+  swapFeesShare: string | null;
+  tag: string | null;
+  tiers: string | null;
+  blockedCountries: string | null;
+  customTotalSupply: string | null;
+  disclaimerUrl: string | null;
+  whitelist: string | null;
+  whitelistUrl: string | null;
+};
+
 const API_URL = "https://fjord-api-dev.fly.dev/api";
 const API_KEY = "x0cyKZA90n+ztKyluX2Zb+YSi5FCCp7h7702hlbZ4ps=";
 
@@ -113,13 +190,16 @@ class FjordHoneySdk {
     })) as any as { data: Pool[] };
   };
 
-  static findPool = async (address: string): Promise<Pool | null> => {
-    const pool = (await sdk.request.rest.findManyPools({
+  static findPool = async (address: string): Promise<FjordPool | null> => {
+    const pool = (await sdk.findManyPools({
       where: {
         address: address,
       },
-    })) as any as { data: Pool[] };
-    return pool.data && pool.data.length > 0 ? pool.data[0] : null;
+    })) as unknown as { data: FjordPool[] };
+
+    console.log(pool);
+
+    return pool && pool.data.length > 0 ? pool.data[0] : null;
   };
 
   static createPool = async (pool: TCreatePool) => {
