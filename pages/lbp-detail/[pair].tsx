@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import CardContainer from "@/components/CardContianer/v3";
 import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
@@ -17,13 +17,15 @@ import dayjs from "dayjs";
 import { parseUnits, formatUnits } from "viem";
 import { useReadContract } from "wagmi";
 import { WarningBanner } from "./WarningBanner";
-import { Pool } from "@marigoldlabs/fjord-honeypot-sdk";
+import { Pool, Swap } from "@marigoldlabs/fjord-honeypot-sdk";
 import { networksMap } from "@/services/chain";
 import { DEFAULT_CHAIN_ID } from "@/config/algebra/default-chain-id";
+import Countdown from "react-countdown";
 
 const LBPDetailPage = () => {
   const router = useRouter();
   const { pair: pairAddress } = router.query;
+  const [swapPage, setPage] = useState<number>(1);
 
   const { data: pool } = useQuery<FjordPool | null>({
     queryKey: ["lbp-detail", pairAddress],
@@ -31,6 +33,17 @@ const LBPDetailPage = () => {
       return await FjordHoneySdk.findPool(pairAddress as string);
     },
   });
+
+  const { data: swaps } = useQuery<Swap[] | null>({
+    queryKey: ["lbp-swpas", pairAddress, swapPage],
+    queryFn: async () => {
+      return await FjordHoneySdk.findManySwap({
+        poolId: pairAddress?.toString().toLowerCase() as string,
+        page: swapPage,
+      });
+    },
+  });
+  console.log(swaps);
 
   const {
     data,
@@ -154,7 +167,7 @@ const LBPDetailPage = () => {
       <div className="container mx-auto max-w-[1320px] space-y-[72px]">
         <CardContainer showBottomBorder={false}>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 p-8">
-            <div className="space-y-4 col-span-2">
+            <div className="space-y-4 col-span-2 pr-5">
               <div className="space-y-2">
                 <div className="flex justify-center items-center w-[74px] h-[32px] bg-white rounded-[4px] border-[0.75px] border-[#202020] shadow-[1px_1px_0px_0px_#000] text-[14px]">
                   ${pool?.shareTokenSymbol}
@@ -251,7 +264,7 @@ const LBPDetailPage = () => {
               <Image
                 src={pool?.imageUrl ?? ""}
                 alt="Overlay Logo"
-                className="absolute h-[150px] w-[150px] object-cover top-[50%] left-[0px] translate-x-[-10%] translate-y-[-50%] z-10 rounded-full"
+                className="absolute h-[150px] w-[150px] object-cover top-[50%] left-[0px] translate-x-[-10%] translate-y-[-50%] z-10 rounded-full border-amber-300 border-[1rem] bg-amber-300 "
                 width={500}
                 height={500}
                 priority
@@ -437,7 +450,9 @@ const LBPDetailPage = () => {
                   <div className="text-base font-bold">Ended</div>
                 </div>
                 <div>
-                  <div className="text-sm text-[#4D4D4D] mb-2">Completed</div>
+                  <Countdown date={pool?.endsAt}>
+                    <div className="text-sm text-[#4D4D4D] mb-2">Completed</div>
+                  </Countdown>
                   <div className="grid grid-cols-4 gap-2 text-center">
                     <div>
                       <div className="text-xl font-bold">1</div>
@@ -459,15 +474,6 @@ const LBPDetailPage = () => {
                 </div>
 
                 <div className="bg-white rounded-[16px] border border-black p-4 text-center">
-                  <div className="mb-4">
-                    <Image
-                      src="/images/lbp-detail/logo/check.svg"
-                      alt="check"
-                      width={32}
-                      height={32}
-                      className="mx-auto"
-                    />
-                  </div>
                   <div className="text-lg font-bold mb-2">Sale Ended</div>
                   <div className="text-sm text-[#4D4D4D] mb-4">
                     The token sale has ended. Tokens can be redeemed by clicking

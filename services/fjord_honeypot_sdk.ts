@@ -297,6 +297,9 @@ class FjordHoneySdk {
 
     return await sdk.request.rest.findManySwaps({
       where: { poolId },
+      orderBy: {
+        timestamp: "desc",
+      },
       take,
       skip,
     });
