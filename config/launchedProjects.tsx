@@ -1,7 +1,7 @@
 import { StaticImageData } from "next/image";
 import bearCage from "./launchedProjectsAsset/bearcage.webp";
 import overlay from "./launchedProjectsAsset/overlay.webp";
-import burrBear from "./launchedProjectsAsset/burrBear.webp";
+import burrBear from "./launchedProjectsAsset/burrbear.webp";
 import berally from "./launchedProjectsAsset/berally.webp";
 
 export type LaunchedProject = {
