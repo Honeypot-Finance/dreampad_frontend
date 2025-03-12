@@ -14,7 +14,6 @@ import { itemPopUpVariants } from "@/lib/animation";
 import { MemePairContract } from "@/services/contract/launches/pot2pump/memepair-contract";
 import ProgressBar from "../../atoms/ProgressBar/ProgressBar";
 import { AmountFormat } from "../../AmountFormat";
-import { LaunchType as projectType } from "@/pages/launch-token";
 import Countdown from "react-countdown";
 import BigNumber from "bignumber.js";
 import { Pot2Pump } from "@/lib/algebra/graphql/clients/type";
@@ -299,15 +298,7 @@ const AddLP = observer(
 
 //-------------------------------------Launch Card Variants-------------------------------------//
 const DetailLaunchCard = observer(
-  ({
-    pair,
-    action,
-    projectType,
-  }: {
-    pair: Pot2Pump;
-    action: React.ReactNode;
-    projectType: projectType;
-  }) => {
+  ({ pair, action }: { pair: Pot2Pump; action: React.ReactNode }) => {
     const { projectInfo } = useProjectInfo(pair.id);
 
     // 计算进度百分比
@@ -337,11 +328,7 @@ const DetailLaunchCard = observer(
             optionsPresets.share({
               shareUrl: `${window.location.origin}/launch-detail/${pair?.id}`,
               displayText: "Share this project",
-              shareText:
-                projectType === "meme"
-                  ? "My Meme FTO eats bonding burves for breakfast. Inflate & innovation with Boneypot. Den moon 🌙: " +
-                    pair?.launchToken?.name
-                  : "Checkout this Token: " + pair?.launchToken?.name,
+              shareText: "Checkout this Token: " + pair?.launchToken?.name,
             }),
             optionsPresets.viewOnExplorer({
               address: pair?.id ?? "",
@@ -531,8 +518,6 @@ export const LaunchCardV3 = observer(
     pair?: Pot2Pump;
     action: React.ReactNode;
   } & Partial<HTMLAttributes<any>>) => {
-    const projectType: projectType = "meme";
-
     return (
       <motion.div
         initial="hidden"
@@ -546,7 +531,6 @@ export const LaunchCardV3 = observer(
           <DetailLaunchCard
             pair={pair}
             action={action}
-            projectType={projectType}
           />
         )}
 

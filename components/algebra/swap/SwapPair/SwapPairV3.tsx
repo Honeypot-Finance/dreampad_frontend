@@ -7,7 +7,6 @@ import {
   tryParseAmount,
 } from "@cryptoalgebra/sdk";
 import { useCallback, useMemo, useEffect } from "react";
-import TokenCard from "../TokenCard";
 import { ArrowLeftRight, ChevronsUpDownIcon } from "lucide-react";
 import useWrapCallback, {
   WrapType,

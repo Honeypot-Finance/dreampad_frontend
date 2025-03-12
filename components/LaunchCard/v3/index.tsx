@@ -8,8 +8,6 @@ import { motion } from "framer-motion";
 import { itemPopUpVariants } from "@/lib/animation";
 import { MemePairContract } from "@/services/contract/launches/pot2pump/memepair-contract";
 import ProgressBar from "../../atoms/ProgressBar/ProgressBar";
-import { LaunchType as projectType } from "@/pages/launch-token";
-import CardContianer from "../../CardContianer/CardContianer";
 import BigNumber from "bignumber.js";
 import { wallet } from "@/services/wallet";
 import {
@@ -150,7 +148,10 @@ const DetailLaunchCard = observer(
               src={!!pair.logoUrl ? pair.logoUrl : "/images/empty-logo.png"}
             />
           </div>
-          <LaunchProgress pair={pair} className="my-3" />
+          <LaunchProgress
+            pair={pair}
+            className="my-3"
+          />
           <div className="grid grid-cols-2 gap-4 text-black [&>*:nth-child(odd)]:text-left [&>*:nth-child(even)]:text-right">
             {/* <div>
               <p className="text-xs opacity-60">Total Raised Token</p>
@@ -809,10 +810,16 @@ export const LaunchCardV3 = observer(
             {type === "list" && pair && <div>To be implemented</div>}
 
             {type === "trending" && pair && (
-              <TrendingLaunchCard pair={pair} projectType={projectType} />
+              <TrendingLaunchCard
+                pair={pair}
+                projectType={projectType}
+              />
             )}
             {type === "simple" && pair && (
-              <SimpleLaunchCard pair={pair} theme={theme} />
+              <SimpleLaunchCard
+                pair={pair}
+                theme={theme}
+              />
             )}
             {type === "featured" && pair && <FeaturedLaunchCard pair={pair} />}
           </motion.div>

@@ -15,7 +15,6 @@ import { itemPopUpVariants } from "@/lib/animation";
 import { MemePairContract } from "@/services/contract/launches/pot2pump/memepair-contract";
 import ProgressBar from "../atoms/ProgressBar/ProgressBar";
 import { AmountFormat } from "../AmountFormat";
-import { LaunchType as projectType } from "@/pages/launch-token";
 import Countdown from "react-countdown";
 import CardContianer from "../CardContianer/CardContianer";
 import { FaCrown } from "react-icons/fa";
@@ -364,55 +363,33 @@ const FtoProjectActions = ({
 };
 
 const ProjectDetail = ({
-  projectType,
   pair,
   type,
 }: {
-  projectType: projectType;
   pair: FtoPairContract | MemePairContract;
   type: launchCardVariants;
 }) => {
-  if (projectType === "meme") {
-    return (
-      <MemeProjectDetails
-        pair={pair as MemePairContract}
-        type={type}
-      ></MemeProjectDetails>
-    );
-  } else {
-    return (
-      <FtoProjectDetails
-        pair={pair as FtoPairContract}
-        type={type}
-      ></FtoProjectDetails>
-    );
-  }
+  return (
+    <FtoProjectDetails
+      pair={pair as FtoPairContract}
+      type={type}
+    ></FtoProjectDetails>
+  );
 };
 
 const ProjectActions = ({
-  projectType,
   pair,
   type,
 }: {
-  projectType: projectType;
   pair: FtoPairContract | MemePairContract;
   type: launchCardVariants;
 }) => {
-  if (projectType === "meme") {
-    return (
-      <MemeProjectActions
-        pair={pair as MemePairContract}
-        type={type}
-      ></MemeProjectActions>
-    );
-  } else {
-    return (
-      <FtoProjectActions
-        pair={pair as FtoPairContract}
-        type={type}
-      ></FtoProjectActions>
-    );
-  }
+  return (
+    <MemeProjectActions
+      pair={pair as MemePairContract}
+      type={type}
+    ></MemeProjectActions>
+  );
 };
 
 //-------------------------------------Launch Card Variants-------------------------------------//
@@ -420,12 +397,10 @@ const DetailLaunchCard = observer(
   ({
     pair,
     action,
-    projectType,
     type,
   }: {
     pair: FtoPairContract | MemePairContract;
     action: React.ReactNode;
-    projectType: projectType;
     type: launchCardVariants;
   }) => {
     return (
@@ -456,11 +431,7 @@ const DetailLaunchCard = observer(
                 optionsPresets.share({
                   shareUrl: `${window.location.origin}/launch-detail/${pair?.address}`,
                   displayText: "Share this project",
-                  shareText:
-                    projectType === "meme"
-                      ? "My Meme FTO eats bonding burves for breakfast. Inflate & innovation with Boneypot. Den moon 🌙: " +
-                        pair?.projectName
-                      : "Checkout this Token: " + pair?.projectName,
+                  shareText: "Checkout this Token: " + pair?.projectName,
                 }),
                 optionsPresets.viewOnExplorer({
                   address: pair?.address ?? "",
@@ -488,14 +459,12 @@ const DetailLaunchCard = observer(
               )}
             >
               <ProjectDetail
-                projectType={projectType}
                 pair={pair}
                 type={type}
               />
             </div>
             <div className="w-full mt-[16px] flex gap-4 flex-col sm:flex-row justify-center sm:items-end flex-wrap *:basis-1 grow-[1] *:grow-[1]">
               <ProjectActions
-                projectType={projectType}
                 pair={pair}
                 type={type}
               />
@@ -512,13 +481,11 @@ const TrendingLaunchCard = observer(
   ({
     pair,
     action,
-    projectType,
   }: {
     pair: FtoPairContract | MemePairContract;
     action: React.ReactNode;
-    projectType: projectType;
   }) => {
-    return projectType === "meme" ? (
+    return (
       <CardContianer addtionalClassName="z-[-1] cursor-pointer">
         {(pair.bannerUrl || pair.logoUrl) && (
           <Image
@@ -612,55 +579,6 @@ const TrendingLaunchCard = observer(
           </div>
         </Link>
       </CardContianer>
-    ) : (
-      <CardContianer addtionalClassName="z-[-1] cursor-pointer">
-        {(pair.bannerUrl || pair.logoUrl) && (
-          <Image
-            className="opacity-[0.5] z-[-1] "
-            src={!!pair.bannerUrl ? pair.bannerUrl : pair.logoUrl}
-            alt="banner"
-            layout="fill"
-            objectFit="cover"
-          ></Image>
-        )}
-        <Link
-          href={`/launch-detail/${pair.address}`}
-          className="flex w-full flex-col gap-2 justify-center items-center flex-grow-[1] basis-1"
-        >
-          <div className="flex flex-col gap-2 justify-center items-center flex-grow-[1] basis-1">
-            <div className="w-14 flex items-center justify-center rounded-lg bg-gold-primary aspect-square overflow-hidden">
-              <Image
-                src={
-                  !!pair?.logoUrl ? pair.logoUrl : "/images/project_honey.png"
-                }
-                alt="honey"
-                width={100}
-                height={100}
-                className="object-cover w-full h-full"
-              ></Image>
-            </div>
-            <h4 className="text-white text-center text-[1rem] font-bold flex items-center">
-              <div className=" relative">
-                {pair?.launchedToken?.name} <br />({pair?.launchedToken?.symbol}
-                )
-              </div>
-            </h4>{" "}
-            <motion.div className="flex flex-col items-center gap-1">
-              <h6 className="opacity-50 text-xs">Total raised</h6>
-              <div className="flex items-center gap-2 text-sm">
-                {/* <TotalRaisedSvg /> */}
-                <span className="font-bold">
-                  {pair?.depositedRaisedToken
-                    ? pair.depositedRaisedToken.toFormat(0)
-                    : "-"}{" "}
-                  &nbsp;
-                  {pair?.raiseToken?.displayName}
-                </span>
-              </div>
-            </motion.div>
-          </div>
-        </Link>
-      </CardContianer>
     );
   }
 );
@@ -676,9 +594,6 @@ export const LaunchCard = observer(
     pair?: FtoPairContract | MemePairContract | null;
     action: React.ReactNode;
   } & Partial<HTMLAttributes<any>>) => {
-    const projectType: projectType =
-      pair instanceof MemePairContract ? "meme" : "fto";
-
     return (
       <motion.div
         variants={itemPopUpVariants}
@@ -694,7 +609,6 @@ export const LaunchCard = observer(
           <DetailLaunchCard
             pair={pair}
             action={action}
-            projectType={projectType}
             type="detail"
           />
         )}
@@ -705,7 +619,6 @@ export const LaunchCard = observer(
           <TrendingLaunchCard
             pair={pair}
             action={action}
-            projectType={projectType}
           />
         )}
       </motion.div>
