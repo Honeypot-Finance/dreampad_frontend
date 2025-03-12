@@ -92,7 +92,9 @@ type TFindManyPools = {
   search: string;
   filters?: { owner?: string; endsAt?: { gt?: string; lt?: string } };
 };
+
 type TUpdatePool = { poolAddress: string };
+
 export type TCreatePool = {
   name: string;
   description: string;
