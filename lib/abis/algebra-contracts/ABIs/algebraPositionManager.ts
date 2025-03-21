@@ -1535,11 +1535,6 @@ export const algebraPositionManagerABI = [
   },
   {
     inputs: [],
-    name: "tickOutOfRange",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "topTickAboveMAX",
     type: "error",
   },

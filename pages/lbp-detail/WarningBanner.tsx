@@ -37,3 +37,5 @@ export const WarningBanner = () => {
     </div>
   );
 };
+
+export default WarningBanner;
