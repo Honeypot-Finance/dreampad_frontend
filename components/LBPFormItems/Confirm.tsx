@@ -20,7 +20,6 @@ import { useRouter } from "next/router";
 import useMulticall3 from "../hooks/useMulticall3";
 import { formatErc20Data } from "@/services/lib/helper";
 import { useMutation } from "@tanstack/react-query";
-import FjordHoneySdk, { TCreatePool } from "@/services/fjord_honeypot_sdk";
 import { berachainBartioTestnet } from "@/lib/chain";
 import { FormContainer } from "./Components";
 import { Button } from "@nextui-org/react";
@@ -73,7 +72,10 @@ const ApprovalsCard = ({
       }}
     >
       <div className="absolute top-0 left-4">
-        <img src="/images/launch-project/step-tag.png" alt="step-tag" />
+        <img
+          src="/images/launch-project/step-tag.png"
+          alt="step-tag"
+        />
         <p className="absolute top-1 left-1/2 -translate-x-1/2 text-sm font-semibold">
           0{step}
         </p>
@@ -138,10 +140,6 @@ const Confirm = (props: Props) => {
     projectToken,
     assetTokenQuantity,
   } = getValues();
-
-  const { mutateAsync: createPoolAsync } = useMutation({
-    mutationFn: async (data: TCreatePool) => FjordHoneySdk.createPool(data),
-  });
 
   const { data } = useReadContract({
     abi: LiquidityBootstrapPoolFactoryABI,
@@ -504,52 +502,52 @@ const Confirm = (props: Props) => {
             redemptionDelay:
               tokenClaimDelayHours * 60 * 60 + tokenClaimDelayMinutes * 60,
           });
-          await createPoolAsync({
-            address: poolAddress,
-            name: projectName,
-            description: lbpDescription,
-            chainId: berachainBartioTestnet.id,
-            owner: account.address as string,
-            endsAt: dayjs(endTime).toDate(),
-            startsAt: dayjs(startTime).toDate(),
-            swapCount: 0,
-            swapFee: "0.3",
-            swapEnabled: sellingAllowed,
-            blockNumber: +res.blockNumber.toString(),
-            sellingAllowed: sellingAllowed,
-            assetTokenAddress: assetTokenAddress,
-            assetTokenName: formatedAssetToken.name,
-            assetTokenSymbol: formatedAssetToken.symbol,
-            shareTokenAddress: projectToken,
-            shareTokenName: formatedProjectToken.name,
-            shareTokenSymbol: formatedProjectToken.symbol,
-            txHash: txHash,
-            assetTokenDecimals: formatedAssetToken.decimals,
-            assetsInitial: "",
-            fundsRaised: 0,
-            lbpMarketcap: "",
-            liquidity: "",
-            shareTokenDecimals: formatedProjectToken.decimals,
-            sharesInitial: "",
-            sharesReleased: "",
-            volume: "",
-            weightStart: parseEther(`${startWeight / 100}`).toString(),
-            weightEnd: parseEther(`${endWeight / 100}`).toString(),
-            assetsCurrent: parseUnits(
-              `${assetTokenQuantity}`,
-              formatedAssetToken?.decimals ?? 18
-            ).toString(),
-            numberParticipants: 0,
-            sharesCurrent: parseUnits(
-              `${projectTokenQuantity}`,
-              formatedProjectToken?.decimals ?? 18
-            ).toString(),
-            bannerUrl: saleBanner,
-            imageUrl: projectTokenLogo,
-            learnMoreUrl: projectLink,
-            redemptionDelay:
-              tokenClaimDelayHours * 60 * 60 + tokenClaimDelayMinutes * 60,
-          });
+          // await createPoolAsync({
+          //   address: poolAddress,
+          //   name: projectName,
+          //   description: lbpDescription,
+          //   chainId: berachainBartioTestnet.id,
+          //   owner: account.address as string,
+          //   endsAt: dayjs(endTime).toDate(),
+          //   startsAt: dayjs(startTime).toDate(),
+          //   swapCount: 0,
+          //   swapFee: "0.3",
+          //   swapEnabled: sellingAllowed,
+          //   blockNumber: +res.blockNumber.toString(),
+          //   sellingAllowed: sellingAllowed,
+          //   assetTokenAddress: assetTokenAddress,
+          //   assetTokenName: formatedAssetToken.name,
+          //   assetTokenSymbol: formatedAssetToken.symbol,
+          //   shareTokenAddress: projectToken,
+          //   shareTokenName: formatedProjectToken.name,
+          //   shareTokenSymbol: formatedProjectToken.symbol,
+          //   txHash: txHash,
+          //   assetTokenDecimals: formatedAssetToken.decimals,
+          //   assetsInitial: "",
+          //   fundsRaised: 0,
+          //   lbpMarketcap: "",
+          //   liquidity: "",
+          //   shareTokenDecimals: formatedProjectToken.decimals,
+          //   sharesInitial: "",
+          //   sharesReleased: "",
+          //   volume: "",
+          //   weightStart: parseEther(`${startWeight / 100}`).toString(),
+          //   weightEnd: parseEther(`${endWeight / 100}`).toString(),
+          //   assetsCurrent: parseUnits(
+          //     `${assetTokenQuantity}`,
+          //     formatedAssetToken?.decimals ?? 18
+          //   ).toString(),
+          //   numberParticipants: 0,
+          //   sharesCurrent: parseUnits(
+          //     `${projectTokenQuantity}`,
+          //     formatedProjectToken?.decimals ?? 18
+          //   ).toString(),
+          //   bannerUrl: saleBanner,
+          //   imageUrl: projectTokenLogo,
+          //   learnMoreUrl: projectLink,
+          //   redemptionDelay:
+          //     tokenClaimDelayHours * 60 * 60 + tokenClaimDelayMinutes * 60,
+          // });
 
           router.push(`/lbp-detail/${poolAddress}`);
         }
@@ -586,7 +584,11 @@ const Confirm = (props: Props) => {
       <div className="flex flex-col gap-9">
         <div className="mt-3 md:mt-6 flex flex-wrap justify-between px-3 py-5 md:p-6 border border-black rounded-2xl shadow-field gap-y-4">
           {SummaryItemData.map((d) => (
-            <SummaryItem title={d.title} value={d.value} key={d.value} />
+            <SummaryItem
+              title={d.title}
+              value={d.value}
+              key={d.value}
+            />
           ))}
         </div>
         <div>
