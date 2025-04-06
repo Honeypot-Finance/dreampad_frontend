@@ -14,6 +14,35 @@ export const polygonMumbaiChain: Chain = {
   },
 };
 
+export const berachain: Chain = {
+  id: 80094,
+  name: "Berachain",
+  nativeCurrency: {
+    decimals: 18,
+    name: "BERA Token",
+    symbol: "BERA",
+  },
+  rpcUrls: {
+    default: { http: ["https://rpc.berachain.com/"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Berachain",
+      url: "https://berascan.com/",
+    },
+  },
+  testnet: true,
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      blockCreated: 0,
+    },
+  },
+  fees: {
+    defaultPriorityFee: parseGwei("50"),
+  },
+};
+
 export const berachainTestnet: Chain = {
   ...viemBerachainTestnet,
   contracts: {
@@ -98,15 +127,13 @@ export const berachainBartioTestnet: Chain = {
 
 export const chains = [
   //sepolia,
-  berachainTestnet,
-  berachainBartioTestnet,
-  polygonMumbaiChain,
+  // berachainTestnet,
+  // berachainBartioTestnet,
+  // polygonMumbaiChain,
+  berachain,
 ];
 
-export const chainsMap = chains.reduce(
-  (acc, chain) => {
-    acc[chain.id] = chain;
-    return acc;
-  },
-  {} as Record<number | string, Chain>
-);
+export const chainsMap = chains.reduce((acc, chain) => {
+  acc[chain.id] = chain;
+  return acc;
+}, {} as Record<number | string, Chain>);

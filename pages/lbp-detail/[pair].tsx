@@ -1,182 +1,59 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import CardContainer from "@/components/CardContianer/v3";
 import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
 import { useRouter } from "next/router";
-import useMulticall3 from "@/components/hooks/useMulticall3";
-import { ERC20ABI } from "@/lib/abis/erc20";
-import { LiquidityBootstrapPoolABI } from "@/lib/abis/LiquidityBootstrapPoolAbi";
-import FjordHoneySdk, { FjordPool } from "@/services/fjord_honeypot_sdk";
-import { formatLBPPoolData, formatErc20Data } from "@/services/lib/helper";
-import { useQuery } from "@tanstack/react-query";
-import { BigNumber } from "ethers";
+import BigNumber from "bignumber.js";
 import { Address } from "viem";
 import dayjs from "dayjs";
-import { parseUnits, formatUnits } from "viem";
-import { useReadContract } from "wagmi";
 import { WarningBanner } from "./WarningBanner";
-import { Pool, Swap } from "@marigoldlabs/fjord-honeypot-sdk";
 import { networksMap } from "@/services/chain";
 import { DEFAULT_CHAIN_ID } from "@/config/algebra/default-chain-id";
 import Countdown from "react-countdown";
+import { DynamicFormatAmount } from "@/lib/algebra/utils/common/formatAmount";
+import { useLbpLaunch } from "@/lib/algebra/graphql/clients/lbp";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Tooltip } from "@nextui-org/react";
+import { truncate } from "@/lib/format";
+import { observer } from "mobx-react-lite";
+import { isObservable } from "mobx";
+import { LbpLaunch } from "@/services/contract/launches/lbp/lbpPair";
+import LbpActionComponent from "./LbpActionComponent";
+import { LbpSalePercent } from "./LbpSalePercent";
+import { LbpTransactionTable } from "./LbpTransactionTable";
 
-const LBPDetailPage = () => {
+const LBPDetailPage = observer(() => {
   const router = useRouter();
+  const [lbpLaunch, setLbpLaunch] = useState<LbpLaunch | null>(null);
   const { pair: pairAddress } = router.query;
-  const [swapPage, setPage] = useState<number>(1);
-
-  const { data: pool } = useQuery<FjordPool | null>({
-    queryKey: ["lbp-detail", pairAddress],
-    queryFn: async () => {
-      return await FjordHoneySdk.findPool(pairAddress as string);
-    },
-  });
-
-  const { data: swaps } = useQuery<Swap[] | null>({
-    queryKey: ["lbp-swpas", pairAddress, swapPage],
-    queryFn: async () => {
-      return await FjordHoneySdk.findManySwap({
-        poolId: pairAddress?.toString().toLowerCase() as string,
-        page: swapPage,
-      });
-    },
-  });
-  console.log(swaps);
-
-  const {
-    data,
-    refetch: refetchArgs,
-    isLoading: isArgsLoading,
-  } = useMulticall3({
-    queryKey: [pairAddress],
-    contractCallContext: [
-      {
-        abi: LiquidityBootstrapPoolABI as any,
-        reference: "LiquidityBootstrapPool",
-        contractAddress: pairAddress as Address,
-        calls: [
-          { methodName: "args", reference: "args", methodParameters: [] },
-          {
-            methodName: "totalAssetsIn",
-            reference: "totalAssetsIn",
-            methodParameters: [],
-          },
-        ],
-      },
-    ],
-    select: (data: any) => {
-      const result: { args: Pool | {}; totalAssetsIn: BigInt } = {
-        args: {},
-        totalAssetsIn: BigInt(0),
-      };
-      data.LiquidityBootstrapPool.callsReturnContext.forEach((data: any) => {
-        if (data.reference === "args") {
-          result.args = formatLBPPoolData(data.returnValues ?? []);
-        } else if (data.reference === "totalAssetsIn") {
-          result.totalAssetsIn = BigNumber.from(
-            data?.returnValues?.[0]?.hex ?? 0
-          ).toBigInt();
-        }
-      });
-
-      return result;
-    },
-  });
-
-  const { data: tokenData, isLoading: isErc20Loading } = useMulticall3({
-    queryKey: ["erc20", data?.args?.share],
-    contractCallContext: [
-      {
-        reference: "shareToken",
-        contractAddress: data?.args?.share,
-        abi: ERC20ABI as any,
-        calls: [
-          { reference: "name", methodName: "name", methodParameters: [] },
-          { reference: "symbol", methodName: "symbol", methodParameters: [] },
-          {
-            reference: "decimals",
-            methodName: "decimals",
-            methodParameters: [],
-          },
-          {
-            reference: "totalSupply",
-            methodName: "totalSupply",
-            methodParameters: [],
-          },
-        ],
-      },
-      {
-        reference: "assetToken",
-        contractAddress: data?.args?.asset,
-        abi: ERC20ABI as any,
-        calls: [
-          { reference: "name", methodName: "name", methodParameters: [] },
-          { reference: "symbol", methodName: "symbol", methodParameters: [] },
-          {
-            reference: "decimals",
-            methodName: "decimals",
-            methodParameters: [],
-          },
-          {
-            reference: "totalSupply",
-            methodName: "totalSupply",
-            methodParameters: [],
-          },
-        ],
-      },
-    ],
-    enabled: Boolean(data?.args?.shares && data?.args?.asset),
-  });
-
-  const token = formatErc20Data(
-    tokenData?.results?.shareToken?.callsReturnContext ?? []
+  const { data, loading, error } = useLbpLaunch(
+    pairAddress?.toString().toLowerCase() as Address
   );
 
-  const assetToken = formatErc20Data(
-    tokenData?.results?.assetToken?.callsReturnContext ?? []
-  );
-
-  const { data: previewAssetsIn } = useReadContract({
-    abi: LiquidityBootstrapPoolABI,
-    address: pairAddress as Address,
-    functionName: "previewAssetsIn",
-    args: [parseUnits("1", token?.decimals ?? 18)],
-    query: {
-      enabled: Boolean(token?.decimals),
-    },
-  });
-
-  const percentOfTokenSold =
-    data?.args?.totalPurchased && data?.args?.shares
-      ? Math.round(
-          (+formatUnits(data?.args?.totalPurchased, token.decimals) /
-            +formatUnits(data?.args?.shares, token.decimals)) *
-            100
-        )
-      : 0;
-
-  const isStart =
-    data?.args?.saleStart && dayjs().unix() - data?.args?.saleStart > 0;
-
-  const isSaleEnd = data?.args?.saleEnd * 1000 < Date.now();
+  useEffect(() => {
+    if (data) {
+      setLbpLaunch(data);
+    }
+  }, [data]);
 
   return (
     <div className="min-h-screen relative w-full font-gliker">
-      <div className="container mx-auto max-w-[1320px] space-y-[72px]">
+      <div className="container mx-auto max-w-[1520px] space-y-[72px]">
         <CardContainer showBottomBorder={false}>
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 p-8">
-            <div className="space-y-4 col-span-2 pr-5">
+          <div className="w-full lg:grid lg:grid-cols-5 gap-8 p-8">
+            <div className="w-full space-y-4 lg:col-span-2 lg:pr-5 mb-5">
               <div className="space-y-2">
                 <div className="flex justify-center items-center w-[74px] h-[32px] bg-white rounded-[4px] border-[0.75px] border-[#202020] shadow-[1px_1px_0px_0px_#000] text-[14px]">
-                  ${pool?.shareTokenSymbol}
+                  ${lbpLaunch?.shareToken?.symbol}
                 </div>
 
                 <h1 className="text-[30px] text-[#0D0D0D] font-gliker text-stroke-0.5 text-stroke-white text-shadow-[1px_2px_0px_#AF7F3D]">
-                  {pool?.shareTokenName}
+                  {lbpLaunch?.shareToken?.name}
                 </h1>
-                <p className="text-[#4D4D4D]">{pool?.description}</p>
+                <p className="text-[#4D4D4D]">{lbpLaunch?.resume}</p>
               </div>
 
               <div className="rounded-[16px] border border-black bg-white shadow-[4px_4px_0px_0px_#D29A0D] p-4">
@@ -186,7 +63,7 @@ const LBPDetailPage = () => {
                       Token Sale Type
                     </span>
                     <div className="text-[#202020] text-base flex items-center gap-1">
-                      {pool?.lbpType === "default" ? "LBP" : pool?.lbpType}
+                      LBP
                       {/* <Image
                         src="/images/lbp-detail/logo/link.svg"
                         alt="link"
@@ -201,15 +78,15 @@ const LBPDetailPage = () => {
                     </span>
                     <div className="text-[#202020] text-base flex items-center gap-1">
                       {
-                        networksMap[pool?.chainId ?? DEFAULT_CHAIN_ID].chain
-                          .name
+                        networksMap[lbpLaunch?.chainId ?? DEFAULT_CHAIN_ID]
+                          .chain.name
                       }
                       <Image
                         src={
-                          networksMap[pool?.chainId ?? DEFAULT_CHAIN_ID]
+                          networksMap[lbpLaunch?.chainId ?? DEFAULT_CHAIN_ID]
                             .chainImageUrl
                         }
-                        alt="arbitrum"
+                        alt="chain"
                         width={16}
                         height={16}
                       />
@@ -233,7 +110,7 @@ const LBPDetailPage = () => {
                     <span className="text-[#4D4D4D] text-xs">
                       Launch Partner
                     </span>
-                    <div className="text-[#202020] text-base flex items-center gap-1">
+                    <div className="text-[#202020] text-base flex items-center gap-1 text-right">
                       Honeypot Finance
                       <Image
                         src="/images/lbp-detail/logo/honeypot.png"
@@ -260,19 +137,19 @@ const LBPDetailPage = () => {
             </div>
 
             {/* Right Column - Logo */}
-            <div className="relative w-full h-[400px] object-contain col-span-3 pl-[50px]">
+            <div className="relative w-full h-[400px] object-contain col-span-3 lg:pl-[50px]">
               <Image
-                src={pool?.imageUrl ?? ""}
-                alt="Overlay Logo"
-                className="absolute h-[150px] w-[150px] object-cover top-[50%] left-[0px] translate-x-[-10%] translate-y-[-50%] z-10 rounded-full border-amber-300 border-[1rem] bg-amber-300 "
+                src={lbpLaunch?.imageUrl ?? ""}
+                alt="Logo"
+                className="absolute h-[150px] w-[150px] object-cover top-[50%] left-[50%] lg:left-[0px] translate-x-[-50%] lg:translate-x-[-10%] translate-y-[-50%] z-10 rounded-full border-amber-300 border-[1rem] bg-amber-300 "
                 width={500}
                 height={500}
                 priority
               />
               <Image
-                src={pool?.bannerUrl ?? ""}
-                alt="Overlay Logo"
-                className="relative w-full h-full object-contain col-span-3"
+                src={lbpLaunch?.lbpBanner || lbpLaunch?.bannerUrl || ""}
+                alt="Banner"
+                className="relative w-full h-full object-cover col-span-3"
                 width={500}
                 height={500}
                 priority
@@ -287,24 +164,21 @@ const LBPDetailPage = () => {
         >
           <WarningBanner />
 
-          <CardContainer className="col-span-4">
+          <CardContainer className="col-span-6 lg:col-span-4">
             <div className="space-y-6 w-full">
-              <div className="grid grid-cols-[220px_1fr] gap-6 items-start">
-                <div className="space-y-4">
+              <div className="lg:grid lg:grid-cols-[220px_1fr] gap-6 items-start ">
+                <div className="space-y-4 mb-2">
                   <div className="bg-white rounded-[16px] border border-black p-5 shadow-[4px_4px_0px_0px_#D29A0D] hover:shadow-[2px_2px_0px_0px_#D29A0D] transition-shadow">
                     <div className="text-sm text-[#4D4D4D] mb-2 text-center">
-                      Price per OVL
+                      Price per {lbpLaunch?.assetToken?.symbol}
                     </div>
                     <div className="text-[24px] text-white text-shadow-[1.481px_2.963px_0px_#AF7F3D] text-stroke-1 text-stroke-black text-center">
-                      0.281 USDC
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-[16px] border border-black p-5 shadow-[4px_4px_0px_0px_#D29A0D] hover:shadow-[2px_2px_0px_0px_#D29A0D] transition-shadow">
-                    <div className="text-sm text-[#4D4D4D] mb-2 text-center">
-                      Min/Max Allocation
-                    </div>
-                    <div className="text-[24px] text-white text-shadow-[1.481px_2.963px_0px_#AF7F3D] text-stroke-1 text-stroke-black text-center">
-                      0 - 50K
+                      {DynamicFormatAmount({
+                        amount:
+                          lbpLaunch?.assetTokenPerShareToken.toString() ?? 0,
+                        decimals: 2,
+                        endWith: lbpLaunch?.shareToken?.symbol ?? "",
+                      })}
                     </div>
                   </div>
                   <div className="bg-white rounded-[16px] border border-black p-5 shadow-[4px_4px_0px_0px_#D29A0D] hover:shadow-[2px_2px_0px_0px_#D29A0D] transition-shadow">
@@ -312,197 +186,63 @@ const LBPDetailPage = () => {
                       Funds Raised
                     </div>
                     <div className="text-[24px] text-white text-shadow-[1.481px_2.963px_0px_#AF7F3D] text-stroke-1 text-stroke-black text-center">
-                      $704.2k
+                      {DynamicFormatAmount({
+                        amount: lbpLaunch?.fundsRaised.toString() ?? 0,
+                        decimals: 2,
+                        endWith: lbpLaunch?.assetToken?.symbol ?? "",
+                      })}
                     </div>
                   </div>
                   <div className="bg-white rounded-[16px] border border-black p-5 shadow-[4px_4px_0px_0px_#D29A0D] hover:shadow-[2px_2px_0px_0px_#D29A0D] transition-shadow">
-                    <div className="text-sm text-[#4D4D4D] mb-2 text-center">
-                      FDV Marketcap
-                    </div>
-                    <div className="text-[24px] text-white text-shadow-[1.481px_2.963px_0px_#AF7F3D] text-stroke-1 text-stroke-black text-center">
-                      $25M
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-[16px] border border-black p-5 shadow-[4px_4px_0px_0px_#D29A0D] hover:shadow-[2px_2px_0px_0px_#D29A0D] transition-shadow">
-                    <div className="text-sm text-[#4D4D4D] mb-2 text-center">
+                    <div className="text-sm text-[#171414] mb-2 text-center">
                       Sale Marketcap
                     </div>
                     <div className="text-[24px] text-white text-shadow-[1.481px_2.963px_0px_#AF7F3D] text-stroke-1 text-stroke-black text-center">
-                      $690.4k
+                      {DynamicFormatAmount({
+                        amount: lbpLaunch?.maxAssets?.toString() ?? 0,
+                        decimals: 2,
+                        endWith: lbpLaunch?.assetToken?.symbol ?? "",
+                      })}
                     </div>
                   </div>
                 </div>
-
-                <div className="bg-white rounded-[16px] border border-black border-dashed p-4">
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-separate border-spacing-0">
-                      <thead>
-                        <tr>
-                          <th className="text-left text-xs text-[#4D4D4D] py-2">
-                            Time
-                          </th>
-                          <th className="text-left text-xs text-[#4D4D4D] py-2">
-                            Address
-                          </th>
-                          <th className="text-left text-xs text-[#4D4D4D] py-2">
-                            Amount In
-                          </th>
-                          <th className="text-left text-xs text-[#4D4D4D] py-2">
-                            Amount Out
-                          </th>
-                          <th className="text-left text-xs text-[#4D4D4D] py-2">
-                            Type
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Array(9)
-                          .fill(0)
-                          .map((_, index) => (
-                            <tr key={index}>
-                              <td className="text-sm text-[#4D4D4D] py-3 border-b border-black">
-                                10 days ago
-                              </td>
-                              <td className="text-sm text-[#4D4D4D] font-mono py-3 border-b border-black">
-                                0x2c73...7BA9
-                              </td>
-                              <td className="py-3 border-b border-black">
-                                <div className="flex items-center gap-1">
-                                  <Image
-                                    src="/images/lbp-detail/logo/arb.png"
-                                    alt="eth"
-                                    width={16}
-                                    height={16}
-                                    className="inline-block"
-                                  />
-                                  <span className="text-[#4BC964] text-sm">
-                                    2.2
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="py-3 border-b border-black">
-                                <div className="flex items-center gap-1">
-                                  <Image
-                                    src="/images/lbp-detail/logo/arb.png"
-                                    alt="token"
-                                    width={16}
-                                    height={16}
-                                    className="inline-block"
-                                  />
-                                  <span className="text-sm">23.02k</span>
-                                </div>
-                              </td>
-                              <td className="py-3 border-b border-black">
-                                <span className="text-[#4BC964] text-sm">
-                                  Buy
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Pagination */}
-                  <div className="flex items-center justify-center mt-6 gap-4">
-                    <button className="w-8 h-8 flex items-center justify-center text-base">
-                      <HiOutlineChevronLeft size={16} />
-                    </button>
-                    <button className="w-8 h-8 flex items-center justify-center border border-black rounded-[4.571px] bg-[#FFCD4D] shadow-[1px_1px_0px_0px_#000] text-base font-bold">
-                      1
-                    </button>
-                    <button className="w-8 h-8 flex items-center justify-center text-base">
-                      2
-                    </button>
-                    <button className="w-8 h-8 flex items-center justify-center text-base">
-                      3
-                    </button>
-                    <button className="w-8 h-8 flex items-center justify-center text-base">
-                      4
-                    </button>
-                    <span className="text-base text-[#4D4D4D]">........</span>
-                    <button className="w-8 h-8 flex items-center justify-center text-base">
-                      68
-                    </button>
-                    <button className="w-8 h-8 flex items-center justify-center text-base">
-                      <HiOutlineChevronRight size={16} />
-                    </button>
-                  </div>
-                </div>
+                {lbpLaunch && <LbpTransactionTable lbpLaunch={lbpLaunch} />}
               </div>
-
-              <div className="bg-white rounded-[16px] border-2 border-[#5A4A4A] p-2 shadow-[2px_2px_0px_0px_#202020,2px_4px_0px_0px_#202020]">
-                <div className="text-center">
-                  <div className="text-lg font-bold">100.00%</div>
-                  <div className="text-sm text-[#4D4D4D]">
-                    2,455M / 2,4555M OVL
-                  </div>
-                </div>
-              </div>
+              {lbpLaunch && <LbpSalePercent lbpLaunch={lbpLaunch} />}
             </div>
           </CardContainer>
 
-          <div className="col-span-2">
+          <div className="col-span-6 lg:col-span-2 h-full">
             <CardContainer>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-[#4D4D4D]">Sale Status</div>
-                  <div className="text-base font-bold">Ended</div>
-                </div>
-                <div>
-                  <Countdown date={pool?.endsAt}>
-                    <div className="text-sm text-[#4D4D4D] mb-2">Completed</div>
-                  </Countdown>
-                  <div className="grid grid-cols-4 gap-2 text-center">
-                    <div>
-                      <div className="text-xl font-bold">1</div>
-                      <div className="text-xs text-[#4D4D4D]">Days</div>
-                    </div>
-                    <div>
-                      <div className="text-xl font-bold">0</div>
-                      <div className="text-xs text-[#4D4D4D]">Hours</div>
-                    </div>
-                    <div>
-                      <div className="text-xl font-bold">37</div>
-                      <div className="text-xs text-[#4D4D4D]">Minutes</div>
-                    </div>
-                    <div>
-                      <div className="text-xl font-bold">45</div>
-                      <div className="text-xs text-[#4D4D4D]">Seconds</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-[16px] border border-black p-4 text-center">
-                  <div className="text-lg font-bold mb-2">Sale Ended</div>
-                  <div className="text-sm text-[#4D4D4D] mb-4">
-                    The token sale has ended. Tokens can be redeemed by clicking
-                    the &apos;Claim Tokens Here&apos; button below.
-                  </div>
-                  <div className="text-sm text-[#4D4D4D] mb-4">
-                    Some tokens may have a claim delay as set by the sale
-                    creator.
-                  </div>
-                  <div className="border-t border-black pt-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Purchased tokens:</span>
-                      <span>0 OVL</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-black rounded-2xl p-4">
-                  <button className="w-full bg-[#FFCD4D] text-black rounded-xl text-[18px] py-3">
-                    Nothing to redeem
-                  </button>
-                </div>
+              <div className="space-y-4 w-full">
+                {lbpLaunch && <LbpActionComponent lbpLaunch={lbpLaunch} />}
               </div>
             </CardContainer>
           </div>
         </CardContainer>
+        <CardContainer
+          className="bg-white border-3 border-[#FFCD4D] px-[50px] py-[100px]"
+          showBottomBorder={false}
+        >
+          <ReactMarkdown
+            components={{
+              a: ({ node, ...props }) => (
+                <a
+                  {...props}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {props.children}
+                </a>
+              ),
+            }}
+            children={lbpLaunch?.description}
+            remarkPlugins={[remarkGfm]}
+          />
+        </CardContainer>
       </div>
     </div>
   );
-};
+});
 
 export default LBPDetailPage;

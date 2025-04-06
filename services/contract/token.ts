@@ -436,7 +436,9 @@ export class Token implements BaseContract {
   async getTotalSupply(force?: boolean) {
     if (!force) {
       const cachedTotalSupply = localStorage.getItem(
-        `token-totalSupply-${wallet.currentChainId}-${this.address.toLowerCase()}`
+        `token-totalSupply-${
+          wallet.currentChainId
+        }-${this.address.toLowerCase()}`
       );
       if (cachedTotalSupply) {
         this.totalSupplyWithoutDecimals = new BigNumber(cachedTotalSupply);
@@ -449,7 +451,9 @@ export class Token implements BaseContract {
     this.totalSupplyWithoutDecimals = new BigNumber(totalSupply.toString());
 
     localStorage.setItem(
-      `token-totalSupply-${wallet.currentChainId}-${this.address.toLowerCase()}`,
+      `token-totalSupply-${
+        wallet.currentChainId
+      }-${this.address.toLowerCase()}`,
       totalSupply.toString()
     );
 

@@ -6,11 +6,10 @@ import { Button } from "@/components/button";
 import { shortenAddress } from "@/lib/format";
 import { Address } from "viem";
 import Link from "next/link";
-
-type IProjectCardStatus = "live" | "comming" | "ended";
+import { DynamicFormatAmount } from "@/lib/algebra/utils/common/formatAmount";
 
 type ILaunchPadProjectCard = {
-  status: IProjectCardStatus;
+  status: string;
   coverImg: string | null;
   isShowCoverImage?: boolean;
   endDate: number;
@@ -24,38 +23,36 @@ type ILaunchPadProjectCard = {
   variant?: "list" | "grid";
 };
 
-const ProjectCardStatus = observer(
-  ({ status }: { status: IProjectCardStatus }) => {
-    return (
-      <div className="flex items-center ">
+const ProjectCardStatus = observer(({ status }: { status: string }) => {
+  return (
+    <div className="flex items-center ">
+      <div
+        className={clsx(
+          "flex justify-center items-center w-[18px] h-[18px] rounded-full",
+          {
+            "bg-[#F7941D1A]": status === "comming",
+            "bg-[#43d9a3]/10": status === "live",
+          }
+        )}
+      >
         <div
           className={clsx(
-            "flex justify-center items-center w-[18px] h-[18px] rounded-full",
+            "flex justify-center items-center w-[8px] h-[8px] rounded-full",
             {
-              "bg-[#F7941D1A]": status === "comming",
-              "bg-[#43d9a3]/10": status === "live",
+              "bg-[#F7941D]": status === "comming",
+              "bg-[#43d9a3]": status === "live",
             }
           )}
-        >
-          <div
-            className={clsx(
-              "flex justify-center items-center w-[8px] h-[8px] rounded-full",
-              {
-                "bg-[#F7941D]": status === "comming",
-                "bg-[#43d9a3]": status === "live",
-              }
-            )}
-          ></div>
-        </div>
-        <div className="font-bold text-white text-[1rem] leading-[1.3rem] min-w-[110px] text-center">
-          {status != "ended" && (
-            <div>{status == "live" ? "Live now" : "Coming Soon"}</div>
-          )}
-        </div>
+        ></div>
       </div>
-    );
-  }
-);
+      <div className="font-bold text-white text-[1rem] leading-[1.3rem] min-w-[110px] text-center">
+        {status != "ended" && (
+          <div>{status == "live" ? "Live now" : "Coming Soon"}</div>
+        )}
+      </div>
+    </div>
+  );
+});
 
 type ITokenInfo = {
   symbol: string;
@@ -101,7 +98,7 @@ const TokenInfo = observer(
 );
 
 type ILaunchPadProjectBody = {
-  status: IProjectCardStatus;
+  status: string;
   symbol?: string;
   endDate: number;
   startDate: number;
@@ -120,7 +117,7 @@ const LaunchPadProjectBody = observer(
 
     return (
       <div className="my-[10px] py-[8px] flex items-center flex-col justify-between w-full bg-[#31220C] rounded-2xl gap-[18px]">
-        <ProjectCardStatus status={"ended"} />
+        <ProjectCardStatus status={status} />
 
         <Countdown
           date={status == "live" ? endDate : startDate}
@@ -205,7 +202,7 @@ const LaunchPadProjectCard = observer(
       return (
         <div
           className={clsx(
-            "min-w-[18.5rem]   rounded-[20px] bg-[#1D1407] border border-[#F7931A0D] overflow-hidden"
+            "min-w-[18.5rem]   rounded-[20px] bg-[#202020] border border-[#F7931A0D] overflow-hidden"
           )}
         >
           {isShowCoverImage && (
@@ -260,56 +257,65 @@ const LaunchPadProjectCard = observer(
       );
     } else if (variant === "list") {
       return (
-        <div className="flex flex-col w-full grow bg-[#1D1407] border border-[#F7931A0D] rounded-[20px] my-1 p-2">
-          <div className="flex justify-between relative">
-            <div className="grid grid-cols-[52px_1fr_1fr_1fr_100px] gap-5 items-center w-full">
-              <div className="w-[52px] h-[52px] rounded-full overflow-hidden relative">
-                <img
-                  src={
-                    shareTokenSymbol ||
-                    "/images/icons/tokens/thpot-token-yellow-icon.png"
+        <>
+          <td className="flex items-center gap-2 p-2">
+            <div className="w-[52px] h-[52px] rounded-full overflow-hidden relative">
+              <img
+                src={
+                  shareTokenSymbol ||
+                  "/images/icons/tokens/thpot-token-yellow-icon.png"
+                }
+                alt={tokenName}
+                className="w-full h-full object-cover rounded-full"
+                onError={({ currentTarget }) => {
+                  if (currentTarget.src.includes(shareTokenSymbol ?? "")) {
+                    currentTarget.src =
+                      "/images/icons/tokens/thpot-token-yellow-icon.png";
                   }
-                  alt={tokenName}
-                  className="w-full h-full object-cover rounded-full"
-                  onError={({ currentTarget }) => {
-                    if (currentTarget.src.includes(shareTokenSymbol ?? "")) {
-                      currentTarget.src =
-                        "/images/icons/tokens/thpot-token-yellow-icon.png";
-                    }
-                  }}
-                />
-              </div>
-              <div className="flex flex-col">
-                <div className="text-base leading-[20px] font-bold text-white">
-                  {tokenName}
-                </div>
-              </div>
-
-              <div className="flex flex-col ">
-                <div className="text-base leading-[20px] font-bold text-white">
-                  {assetTokenSymbol}
-                </div>
-              </div>
-
-              <div className="flex flex-col text-right">
-                <div className="text-base leading-[20px] font-bold text-white">
-                  <span className="text-[#F7941D]">Raised: </span>
-                  {fundsRaised}
-                </div>
-              </div>
-
-              <div className="flex flex-col">
-                <div className="text-base leading-[20px] font-bold text-white">
-                  <Link href={`/lbp-detail/${pairAddress}`}>
-                    <Button className="w-full outline-2">
-                      <span className="font-bold text-[12px]">View</span>
-                    </Button>
-                  </Link>
-                </div>
-              </div>
+                }}
+              />
             </div>
-          </div>
-        </div>
+            <span className="text-base leading-[20px] font-bold text-white">
+              {tokenName}
+            </span>
+          </td>
+
+          <td className="">
+            <div className="flex items-center justify-center text-base leading-[20px] font-bold text-white">
+              {status}
+            </div>
+          </td>
+
+          <td className="">
+            <div className="flex items-center justify-center text-base leading-[20px] font-bold text-white">
+              {assetTokenSymbol}
+            </div>
+          </td>
+
+          <td className="">
+            <div className="flex items-center justify-center text-base leading-[20px] font-bold text-white">
+              <span className="text-[#F7941D] mr-1">Raised: </span>{" "}
+              <span>
+                {DynamicFormatAmount({
+                  amount: fundsRaised,
+                  decimals: 5,
+
+                  endWith: assetTokenSymbol,
+                })}
+              </span>
+            </div>
+          </td>
+
+          <td className="">
+            <div className="text-base leading-[20px] font-bold text-white">
+              <Link href={`/lbp-detail/${pairAddress}`}>
+                <Button className="w-full outline-2">
+                  <span className="font-bold text-[12px]">View</span>
+                </Button>
+              </Link>
+            </div>
+          </td>
+        </>
       );
     }
   }

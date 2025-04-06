@@ -16,11 +16,80 @@ import FjordHoneySdk from "@/services/fjord_honeypot_sdk";
 import dayjs from "dayjs";
 import { LaunchCardV3 } from "@/components/LaunchCard/v3";
 import { HoneyContainer } from "@/components/CardContianer";
+import { useLbpLaunchList } from "@/lib/algebra/graphql/clients/lbp";
+import { Address } from "viem";
+import { lbpMetadatas } from "@/config/lbpmetadata";
+const LbpProjectList = observer(() => {
+  const { data, loading, error } = useLbpLaunchList();
+  console.log("data", data);
+
+  return (
+    <HoneyContainer className="mx-auto max-w-[1280px]">
+      <DataContainer
+        hasData={data && data?.length > 0}
+        isLoading={loading}
+        className="w-full"
+      >
+        <div className="w-full">
+          <motion.div
+            variants={defaultContainerVariants}
+            initial="hidden"
+            animate="visible"
+            className={"flex flex-col gap-1 w-full"}
+          >
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Status</th>
+                  <th>Raise Token</th>
+                  <th>Raise Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody className="border-t border-[#F7931A0D]">
+                {data
+                  ?.filter((pair) =>
+                    Object.keys(lbpMetadatas).includes(
+                      pair.address?.toLowerCase() as string
+                    )
+                  )
+                  .map((pair, idx) => (
+                    <motion.tr
+                      variants={itemPopUpVariants}
+                      key={idx}
+                      className="bg-[#202020]"
+                    >
+                      <LaunchPadProjectCard
+                        status={pair.launchStatusDisplay}
+                        coverImg={pair.lbpBanner}
+                        isShowCoverImage={true}
+                        endDate={pair.endsAt.unix()}
+                        startDate={pair.startsAt.unix()}
+                        tokenName={pair.shareToken?.symbol ?? ""}
+                        projectAuthor={pair.owner}
+                        fundsRaised={pair.fundsRaised.toNumber()}
+                        assetTokenSymbol={pair.assetToken?.symbol ?? ""}
+                        shareTokenSymbol={pair.imageUrl}
+                        pairAddress={pair.address as Address}
+                        variant="list"
+                      />
+                    </motion.tr>
+                  ))}
+              </tbody>
+            </table>
+          </motion.div>
+        </div>
+      </DataContainer>
+    </HoneyContainer>
+  );
+});
 
 const MemeLaunchPage: NextLayoutPage = observer(() => {
   const [selectedTab, setSelectedTab] = useState<"all" | "my">("all");
   const [currentTime, setCurrentTime] = useState(dayjs().toISOString());
   const owner = selectedTab == "my" ? wallet.account : "";
+  const { data, loading, error } = useLbpLaunchList();
 
   useEffect(() => {
     if (!wallet.isInit) {
@@ -53,11 +122,17 @@ const MemeLaunchPage: NextLayoutPage = observer(() => {
               }
             }}
           >
-            <Tab key="all" title="All Projects" />
-            <Tab key="my" title="My Projects" />
+            <Tab
+              key="all"
+              title="All Projects"
+            />
+            <Tab
+              key="my"
+              title="My Projects"
+            />
           </Tabs>
 
-          <div className="flex gap-5">
+          {/* <div className="flex gap-5">
             <Button className="px-[38px] py-[12.5px] rounded-full outline-1 !bg-[#FFCD4D] border-2 border-[#E18A2066]">
               <Link
                 href="/launch-project"
@@ -66,10 +141,16 @@ const MemeLaunchPage: NextLayoutPage = observer(() => {
                 Launch Token
               </Link>
             </Button>
-          </div>
+          </div> */}
         </div>
-        <LiveProjects owner={owner} currentTime={currentTime} />
-        <EndedProjects owner={owner} currentTime={currentTime} />
+        <LiveProjects
+          owner={owner}
+          currentTime={currentTime}
+        />
+        <EndedProjects
+          owner={owner}
+          currentTime={currentTime}
+        />
       </div>
     </div>
   );
@@ -128,7 +209,10 @@ export const LiveProjects = ({
             }
           >
             {LivePools?.data?.map((pair, idx) => (
-              <motion.div variants={itemPopUpVariants} key={idx}>
+              <motion.div
+                variants={itemPopUpVariants}
+                key={idx}
+              >
                 <LaunchPadProjectCard
                   status={
                     dayjs(pair.startsAt).isAfter(dayjs()) ? "comming" : "live"
@@ -259,4 +343,4 @@ export const EndedProjects = ({
   );
 };
 
-export default MemeLaunchPage;
+export default LbpProjectList;

@@ -53,10 +53,10 @@ export const footerData: Record<string, ReactNode> = {
 };
 
 export const appPathsList: Menu[] = [
-  // {
-  //   path: "/launchpad-projects",
-  //   title: "Sales",
-  // },
+  {
+    path: "/launchpad-projects",
+    title: "Sales",
+  },
   {
     path: "/leaderboard",
     title: "Leaderboard",

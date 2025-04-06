@@ -19,7 +19,7 @@ export class Wallet {
   networks: Network[] = [];
   balance: BigNumber = new BigNumber(0);
   walletClient!: WalletClient;
-  currentChainId: number = -1;
+  currentChainId: number = 80094;
   contracts: {
     routerV2: RouterV2Contract;
     factory: FactoryContract;
@@ -31,14 +31,12 @@ export class Wallet {
   } = {} as any;
   publicClient!: PublicClient;
   isInit = false;
+
   get networksMap() {
-    return this.networks.reduce(
-      (acc, network) => {
-        acc[network.chainId] = network;
-        return acc;
-      },
-      {} as Record<number, Network>
-    );
+    return this.networks.reduce((acc, network) => {
+      acc[network.chainId] = network;
+      return acc;
+    }, {} as Record<number, Network>);
   }
 
   get currentChain() {

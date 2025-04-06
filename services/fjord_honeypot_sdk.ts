@@ -2,6 +2,7 @@ import {
   FjordSdk,
   PoolCreateArgs,
   Pool,
+  Swap,
 } from "node_modules/@marigoldlabs/fjord-honeypot-sdk/dist/index.js";
 
 export type FjordPool = {
@@ -297,7 +298,7 @@ class FjordHoneySdk {
     const take = 10;
     const skip = (page - 1) * take;
 
-    return await sdk.request.rest.findManySwaps({
+    const swaps = await sdk.request.rest.findManySwaps({
       where: { poolId },
       orderBy: {
         timestamp: "desc",
@@ -305,6 +306,8 @@ class FjordHoneySdk {
       take,
       skip,
     });
+
+    return swaps as any as { data: Swap[] };
   };
 }
 
