@@ -33,3 +33,5 @@ export const LbpSalePercent = ({ lbpLaunch }: { lbpLaunch: LbpLaunch }) => {
     </div>
   );
 };
+
+export default LbpSalePercent;

@@ -130,3 +130,5 @@ export const LbpTransactionTable = ({
     </div>
   );
 };
+
+export default LbpTransactionTable;

@@ -236,9 +236,10 @@ const LBPDetailPage = observer(() => {
                 </a>
               ),
             }}
-            children={lbpLaunch?.description}
             remarkPlugins={[remarkGfm]}
-          />
+          >
+            {lbpLaunch?.description}
+          </ReactMarkdown>
         </CardContainer>
       </div>
     </div>

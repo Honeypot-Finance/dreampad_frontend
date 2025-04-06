@@ -91,14 +91,29 @@ export class MemePairContract implements BaseLaunchContract {
       Number(this.launchedToken.initialUSD)
       ? Number(this.launchedToken.derivedUSD) >
         Number(this.launchedToken.initialUSD)
-        ? `${formatAmountWithAlphabetSymbol((Number(this.launchedToken.derivedUSD) / Number(this.launchedToken.initialUSD)).toFixed(2), 2)}%`
-        : `-${formatAmountWithAlphabetSymbol((Number(this.launchedToken.initialUSD) / Number(this.launchedToken.derivedUSD)).toFixed(2), 2)}%`
+        ? `${formatAmountWithAlphabetSymbol(
+            (
+              Number(this.launchedToken.derivedUSD) /
+              Number(this.launchedToken.initialUSD)
+            ).toFixed(2),
+            2
+          )}%`
+        : `-${formatAmountWithAlphabetSymbol(
+            (
+              Number(this.launchedToken.initialUSD) /
+              Number(this.launchedToken.derivedUSD)
+            ).toFixed(2),
+            2
+          )}%`
       : "--";
   }
 
   get pottingPercentageDisplay() {
     return this.depositedRaisedToken && this.raisedTokenMinCap
-      ? `${formatAmountWithAlphabetSymbol(this.pottingPercentageNumber.toFixed(2), 2)}%`
+      ? `${formatAmountWithAlphabetSymbol(
+          this.pottingPercentageNumber.toFixed(2),
+          2
+        )}%`
       : "--";
   }
 
@@ -487,14 +502,6 @@ export class MemePairContract implements BaseLaunchContract {
     }
 
     const res = await getParticipantDetail(wallet.account, this.address);
-
-    if (res) {
-      this.canClaimLP = !res.claimed && res.pot2Pump.raisedTokenReachingMinCap;
-      this.canRefund =
-        !res.refunded &&
-        !res.pot2Pump.raisedTokenReachingMinCap &&
-        res.pot2Pump.endTime > dayjs().unix();
-    }
   }
 
   async getIndexerData(force?: boolean) {
@@ -536,7 +543,7 @@ export class MemePairContract implements BaseLaunchContract {
       }
 
       const claimed = await this.contract.read.claimedLp([wallet.account] as [
-        `0x${string}`,
+        `0x${string}`
       ]);
 
       const claimable = await this.contract.read.claimableLP([

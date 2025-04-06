@@ -2,13 +2,9 @@ import { BaseContract } from "@/services/contract";
 import { Token } from "@/services/contract/token";
 import BigNumber from "bignumber.js";
 import { MemePairContract } from "./pot2pump/memepair-contract";
-import { LBPPairContract } from "./lbp/lbppair-contract";
 import { FtoPairContract } from "./fto/ftopair-contract";
 
-export type LaunchContract =
-  | MemePairContract
-  | LBPPairContract
-  | FtoPairContract;
+export type LaunchContract = MemePairContract | FtoPairContract;
 
 export type LaunchContractType = "meme" | "lbp" | "fto";
 
@@ -17,9 +13,6 @@ export function getLaunchContractType(
 ): LaunchContractType {
   if (contract instanceof MemePairContract) {
     return "meme";
-  }
-  if (contract instanceof LBPPairContract) {
-    return "lbp";
   }
   if (contract instanceof FtoPairContract) {
     return "fto";

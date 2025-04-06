@@ -47,7 +47,7 @@ const LbpProjectList = observer(() => {
                   <th></th>
                 </tr>
               </thead>
-              <tbody className="border-t border-[#F7931A0D]">
+              <tbody className="border-t border-[#F7931A0D] rounded-lg overflow-hidden">
                 {data
                   ?.filter((pair) =>
                     Object.keys(lbpMetadatas).includes(
@@ -58,7 +58,7 @@ const LbpProjectList = observer(() => {
                     <motion.tr
                       variants={itemPopUpVariants}
                       key={idx}
-                      className="bg-[#202020]"
+                      className="bg-[#202020] border-y-5 border border-[#df9e24]"
                     >
                       <LaunchPadProjectCard
                         status={pair.launchStatusDisplay}
