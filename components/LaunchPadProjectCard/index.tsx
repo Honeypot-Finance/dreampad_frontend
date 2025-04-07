@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import Countdown from "react-countdown";
-import { Button } from "@/components/button";
+import { Button } from "../button/button-next";
 import { shortenAddress } from "@/lib/format";
 import { Address } from "viem";
 import Link from "next/link";
@@ -299,7 +299,6 @@ const LaunchPadProjectCard = observer(
                 {DynamicFormatAmount({
                   amount: fundsRaised,
                   decimals: 5,
-
                   endWith: assetTokenSymbol,
                 })}
               </span>

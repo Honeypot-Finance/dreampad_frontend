@@ -34,10 +34,10 @@ const LbpProjectList = observer(() => {
             variants={defaultContainerVariants}
             initial="hidden"
             animate="visible"
-            className={"flex flex-col gap-1 w-full"}
+            className={"border border-[#5C5C5C] rounded-lg overflow-hidden"}
           >
             <table className="w-full">
-              <thead>
+              <thead className="bg-[#323232] text-white border-b border-[#5C5C5C]">
                 <tr>
                   <th>Project</th>
                   <th>Status</th>
@@ -57,7 +57,7 @@ const LbpProjectList = observer(() => {
                     <motion.tr
                       variants={itemPopUpVariants}
                       key={idx}
-                      className="bg-[#202020] border-y-5 border border-[#df9e24]"
+                      className="bg-[#202020]  border-b-2 border-[#5C5C5C] "
                     >
                       <LaunchPadProjectCard
                         status={pair.launchStatusDisplay}
